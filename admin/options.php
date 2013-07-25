@@ -163,7 +163,7 @@ function db_twitter_feed_settings_markup() {
 /* Write Configuration section
 *******************************************/
 function write_configuration_sec() {
-	echo 'You\'ll need to log into the <a href="https://dev.twitter.com/" target="_blank">Twitter Developer page</a> and set up an app. Once you\'ve set up and app you will get the data necessary for below.';
+	echo 'You\'ll need to log into the Twitter Developers site and set up an app. Once you\'ve set one up you will get the data necessary for below. For a step by step, see the <a href="http://wordpress.org/plugins/devbuddy-twitter-feed/installation/" target="_blank">walkthrough</a>.';
 }
 
 function write_oauth_access_token_field() {
