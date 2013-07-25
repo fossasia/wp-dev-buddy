@@ -3,7 +3,7 @@
 Plugin Name: DevBuddy Twitter Feed Plugin
 Description: A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multiple feeds, custom styling, and aims to make your dev process swift.
 Author: Eji Osigwe
-Version: 1.0.0
+Version: 1.0.1
 Author URI: http://www.eji-osigwe.co.uk/
 
 ========================================================================
