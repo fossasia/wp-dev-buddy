@@ -14,11 +14,12 @@ A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multipl
 
 **Features**:
 
-* Embed multiple Twitter timelines in your theme
+* Nice and simple settings page
+* Embed multiple Twitter timelines on one page
 * Use either a template tag or a shortcode to render feeds
 * All feeds are cached on first render, reducing subsequent load times
 * Well thought out and thorough HTML that is also compliant with Twitter's rules on displaying such feeds
-* A default stylesheet is included that you can either use for display or study when creating your own
+* A default stylesheet is included that you can use either for display or for study when creating your own
 
 **Tips**:
 
@@ -29,6 +30,8 @@ A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multipl
 * You can hide this plugin's settings page by adding one simple line of code to your theme. Simply add `add_action('admin_menu', array($dbtf, 'hide_admin_page'), 999);` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
 
 * Before this plugin can be used the end user will need to offer it Consumer and OAuth keys that can be obtained by creating an application at the [Twitter developers site](https://dev.twitter.com/apps/new). Further information on this can be found under the "Installation" tab.
+
+**NOTE: This plugin requires your server to have cURL enabled to work.**
 
 == Installation ==
 
