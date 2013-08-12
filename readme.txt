@@ -1,5 +1,5 @@
 === DevBuddy Twitter Feed ===
-Contributors: Sandboxmode
+Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, twitter, twitter connect, twitter share, twitter share button
 Requires at least: 3.5
