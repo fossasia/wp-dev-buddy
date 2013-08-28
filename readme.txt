@@ -93,6 +93,9 @@ Amendment of plugin description and settings page to include important and usefu
 * `cache_hours` was added and implemented as a feed configuration option
 * Addition of masking/unmasking facilities utilised within the admin to hide sensitive OAuth and Consumer Key/Secret data
 
+= 2.0.1 =
+Minor rectifications to code that prevented the defaut stylesheet from loading
+
 == Upgrade Notice ==
 
 = 1.0.0 =
@@ -103,3 +106,6 @@ Amendment of plugin description and settings page to include important and usefu
 
 = 2.0.0 =
 The plugin code structure has undergone considerable changes but this won't be noticeable to the user. Additionally, you can now change the number of hours that the feed is cached for and sensitive OAuth and Consumer Key/Secret data is now masked in the admin.
+
+= 2.0.1 =
+Minor rectifications to code that prevented the defaut stylesheet from loading. Update to be able to take advantage of the bundled stylesheet.
