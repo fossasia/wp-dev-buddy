@@ -96,7 +96,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
 	* @since 1.0.0
 	*/
 	public function register_default_styling() {
-		wp_register_style( $this->plugin_name.'-default', DBFBF_URL.'/assets/feed.css', NULL, '2.0', 'all' );
+		wp_register_style( $this->plugin_name.'-default', DBTF_URL.'/assets/feed.css', NULL, '1.0', 'all' );
 	}
 
 
