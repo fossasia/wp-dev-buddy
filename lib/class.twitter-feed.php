@@ -163,13 +163,13 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function render_tweet_html( $t ) {
-		$tweet_is_retweet = (isset($t->retweeted_status)) ? true : false;
+		$tweet_is_retweet = ( isset( $t->retweeted_status ) ) ? true : false;
 
 
 	/*	User data */
 	/************************************************/
 		if ( ! $tweet_is_retweet ) {
-			$tweet_user_id           = $t->user->id;
+			$tweet_user_id           = $t->user->id_str;
 			$tweet_user_display_name = $t->user->name;
 			$tweet_user_screen_name  = $t->user->screen_name;
 			$tweet_user_description  = $t->user->description;
@@ -194,7 +194,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$retweeter_display_name  = $t->user->name;
 			$retweeter_screen_name   = $t->user->screen_name;
 			$retweeter_description   = $t->user->description;
-			$tweet_user_id           = $t->retweeted_status->user->id;
+			$tweet_user_id           = $t->retweeted_status->user->id_str;
 			$tweet_user_display_name = $t->retweeted_status->user->name;
 			$tweet_user_screen_name  = $t->retweeted_status->user->screen_name;
 			$tweet_user_description  = $t->retweeted_status->user->description;
@@ -213,7 +213,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 	/*	Tweet data */
 	/************************************************/
-		$tweet_id				= $t->id;
+		$tweet_id				= $t->id_str;
 		$tweet_text				= $t->text;
 
 		if ( (int) $this->options['cache_hours'] <= 2 ) {
@@ -235,7 +235,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$tweet_mentions[] = array(
 				'screen_name'	=> $mention_data->screen_name,
 				'name'			=> $mention_data->name,
-				'id'			=> $mention_data->id
+				'id'			=> $mention_data->id_str
 			);
 		}
 
@@ -252,7 +252,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$tweet_media = array();
 			foreach($t->entities->media as $media_data) {
 				$tweet_media[] = array(
-					'id'			=> $media_data->id,
+					'id'			=> $media_data->id_str,
 					'type'			=> $media_data->type,
 					'short_url'		=> $media_data->url,
 					'media_url'		=> $media_data->media_url,
