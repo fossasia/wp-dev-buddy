@@ -1,9 +1,9 @@
 <?php
 
 /**
-* 
+* A class for rendering the Twitter feed
 *
-* @version 1.0.0
+* @version 1.0.1
 */
 class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
@@ -24,7 +24,12 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* 
+	* Configure data necessary for rendering the feed
+	*
+	* Get the feed configuration provided by the user
+	* and use defaults for options not provided, check
+	* for a cached version of the feed under the given
+	* user, initialise a Twitter API object.
 	*
 	* @access public
 	* @return void
@@ -95,7 +100,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* 
+	* Based on a limited number of config options, retrieve the raw feed (JSON)
 	*
 	* @access public
 	* @return void
@@ -120,7 +125,26 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* 
+	* Check that the timeline queried actually has tweets
+	*
+	* @access public
+	* @return bool An indication of whether or not the returned feed data has any renderable entries
+	* @since 1.0.1
+	*/
+	public function is_empty() {
+		if ( is_array( $this->feed_data ) && count( $this->feed_data ) === 0 ) {
+			return TRUE;
+
+		} else {
+			return FALSE;
+		}
+	}
+
+
+	/**
+	* Loop through the feed data and render the HTML of the feed
+	*
+	* The output is stored in the $output property
 	*
 	* @access public
 	* @return void
@@ -156,7 +180,9 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* 
+	* Takes a tweet object and renders the HTML for that tweet
+	*
+	* The output is stored in the $output property
 	*
 	* @access public
 	* @return void
