@@ -97,7 +97,8 @@ Amendment of plugin description and settings page to include important and usefu
 Minor rectifications to code that prevented the defaut stylesheet from loading
 
 = 2.0.2 =
-Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathmetically, i.e. 372489002391470081 instead of 3.7248900239147E+17
+* Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathmetically, i.e. 372489002391470081 instead of 3.7248900239147E+17. 
+* The feed now offers friendly feedback should the timeline requested be empty.
 
 == Upgrade Notice ==
 
