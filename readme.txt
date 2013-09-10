@@ -82,43 +82,43 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
-= 1.0.0 =
-First release.
+= 2.0.3 =
+Bug Fix: Using the shortcode to render the feed in the WordPress editor places the feed within the content rather than directly above it.
 
-= 1.0.1 =
-Amendment of plugin description and settings page to include important and useful information.
+= 2.0.2 =
+* Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathmetically, i.e. 372489002391470081 instead of 3.7248900239147E+17. 
+* The feed now offers friendly feedback should the timeline requested be empty.
+
+= 2.0.1 =
+Minor rectifications to code that prevented the defaut stylesheet from loading
 
 = 2.0.0 =
 * Complete overhaul of the plugin's code. Code is now much more modular and refined
 * `cache_hours` was added and implemented as a feed configuration option
 * Addition of masking/unmasking facilities utilised within the admin to hide sensitive OAuth and Consumer Key/Secret data
 
-= 2.0.1 =
-Minor rectifications to code that prevented the defaut stylesheet from loading
-
-= 2.0.2 =
-* Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathmetically, i.e. 372489002391470081 instead of 3.7248900239147E+17. 
-* The feed now offers friendly feedback should the timeline requested be empty.
-
-= 2.0.3 =
-Bug Fix: Using the shortcode to render the feed in the WordPress editor no longer places the feed directly above the content.
-
-== Upgrade Notice ==
+= 1.0.1 =
+Amendment of plugin description and settings page to include important and useful information.
 
 = 1.0.0 =
 First release.
 
-= 1.0.1 =
-Amendment of plugin description and settings page to include important and useful information. Not an urgent upgrade.
+== Upgrade Notice ==
 
-= 2.0.0 =
-The plugin code structure has undergone considerable changes but this won't be noticeable to the user. Additionally, you can now change the number of hours that the feed is cached for and sensitive OAuth and Consumer Key/Secret data is now masked in the admin.
-
-= 2.0.1 =
-Minor rectifications to code that prevented the default stylesheet from loading. Update to be able to take advantage of the bundled stylesheet.
+= 2.0.3 =
+Fixes a bug that meant the feed would be render before the content, rather than within, if the shortcode was used in the WordPress editor.
 
 = 2.0.2 =
 Fixes a bug that led to IDs being read mathematically. As some of the links rendered by the feed use these IDs, those links may have been faulty as a result.
 
-= 2.0.3 =
-Fixes a bug that meant the feed would be render before the content, rather than within, if the shortcode was used in the WordPress editor.
+= 2.0.1 =
+Minor rectifications to code that prevented the default stylesheet from loading. Update to be able to take advantage of the bundled stylesheet.
+
+= 2.0.0 =
+The plugin code structure has undergone considerable changes but this won't be noticeable to the user. Additionally, you can now change the number of hours that the feed is cached for and sensitive OAuth and Consumer Key/Secret data is now masked in the admin.
+
+= 1.0.1 =
+Amendment of plugin description and settings page to include important and useful information. Not an urgent upgrade.
+
+= 1.0.0 =
+First release.
