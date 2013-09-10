@@ -3,7 +3,11 @@ function db_twitter_feed( $feed_config = NULL ) {
 	$the_feed = new DB_Twitter_Feed( $feed_config );
 
 	if ( $the_feed->is_cached ) {
-		$the_feed->echo_output();
+		if ( $the_feed->is_shortcode_called ) {
+			return $the_feed->output;
+		} else {
+			echo $the_feed->output;
+		}
 
 	} else {
 		$the_feed->retrieve_feed_data();
@@ -13,9 +17,14 @@ function db_twitter_feed( $feed_config = NULL ) {
 
 		} else {
 			$the_feed->render_feed_html();
-		}
+			$the_feed->cache_output( $the_feed->options['cache_hours'] );
 
-		$the_feed->echo_output();
+			if ( $the_feed->is_shortcode_called ) {
+				return $the_feed->output;
+			} else {
+				echo $the_feed->output;
+			}
+		}
 	}
 }
 ?>

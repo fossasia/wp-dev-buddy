@@ -64,6 +64,17 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			}
 		}
 
+	/*	The shortcode delivered feed config brings with it
+		the 'is_shortcode_called' option */
+
+	/*	As the above check is based on the items in the
+		$options property array, this option is ignored
+		by the check even if defined in the config by
+		the user because it isn't defined in $options */
+		if ( isset( $feed_config['is_shortcode_called'] ) && $feed_config['is_shortcode_called'] === TRUE ) {
+			$this->is_shortcode_called = TRUE;
+		}
+
 	/*	Check to see if there is a cache available with the
 		username provided. Move into the output if so */
 

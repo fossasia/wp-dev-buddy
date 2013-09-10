@@ -32,6 +32,11 @@ class DevBuddy_Feed_Plugin_Twitter {
 	public $is_cached;
 
 	/**
+	* @var bool A boolean indication of whether or not the feed has been called via shortcode
+	*/
+	public $is_shortcode_called = FALSE;
+
+	/**
 	* @var string The width of the display picture when set by the user
 	*/
 	protected $dp_width;
