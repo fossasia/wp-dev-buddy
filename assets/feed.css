@@ -8,17 +8,10 @@
 /*	Holds the entire list */
 .tweets {
 	position:relative;
-	background-color:#ffffff;
-	border:1px solid #dbdbdb;
-	overflow-x:hidden;
-	overflow-y:scroll;
-	width:290px;
-	height:300px;
-	font-size:14px;
-	color:#474747;
+	max-width:100%;
 }
+	/* All links in the feed */
 	.tweets a {
-		color:#0084b4;
 	}
 	.tweets a:hover {
 		text-decoration:underline;
@@ -33,12 +26,10 @@
 	border-top:none;
 }
 .tweet:nth-child(even) {
-	background-color:#f5f5f5;
 }
 
 /*	Inner tweet wrapper */
 .tweet_content {
-	width:210px;
 	padding-left:55px;
 }
 	/*	The profile pic
@@ -72,7 +63,7 @@
 
 	/* Tweet footer */
 	.tweet_footer {
-		font-size:12px;
+		font-size:79%;
 	}
 		/* Tweet meta info */
 		.tweet_footer a {
@@ -143,7 +134,7 @@
 .tweet_icon_retweet,
 .tweet_icon_favourite {
 	display:inline-block;
-	background-image:url('https://si0.twimg.com/images/dev/cms/intents/icons/sprites/everything-spritev2.png');
+	background-image:url('intent-icon-sprite.png');
 	background-repeat:no-repeat;
 }
 .tweet_icon_reply {

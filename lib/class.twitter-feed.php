@@ -5,6 +5,8 @@
 *
 * @version 1.0.1
 */
+if ( ! class_exists( 'DB_Twitter_Feed' ) ) {
+
 class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 	/**
@@ -473,4 +475,8 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		$this->cache_output( $this->options['cache_hours'] );
 		echo $this->output;
 	}
-}
+} // END class
+
+} // END class_exists
+
+?>

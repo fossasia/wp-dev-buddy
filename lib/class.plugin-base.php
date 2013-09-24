@@ -9,7 +9,9 @@
 *
 * @version 1.0.0
 */
-class DevBuddy_Feed_Plugin_Twitter {
+if ( ! class_exists( 'DevBuddy_Feed_Plugin' ) ) {
+
+class DevBuddy_Feed_Plugin {
 
 	/**
 	* @var string The name of the plugin to be used within the code
@@ -125,7 +127,7 @@ class DevBuddy_Feed_Plugin_Twitter {
 	*/
 	public function cache_output( $hours = 0 ) {
 		if ( (int) $hours !== 0 ) {
-			set_transient( $this->plugin_name.'_output_'.$this->options['user'], $this->output, HOUR_IN_SECONDS*$hours );
+			set_transient( $this->plugin_name.'_output_'.$this->options['user'], $this->output, 3600*$hours );
 			$this->is_cached = TRUE;
 		}
 	}
@@ -307,7 +309,7 @@ class DevBuddy_Feed_Plugin_Twitter {
 	*
 	* @access public
 	* @return void
-	* @used_by DevBuddy_Feed_Plugin_Twitter::hide_wp_admin_menu_item() Executes this request
+	* @used_by DevBuddy_Feed_Plugin::hide_wp_admin_menu_item() Executes this request
 	* @since 1.0.0
 	*/
 	public function hide_admin_page() {
@@ -324,11 +326,14 @@ class DevBuddy_Feed_Plugin_Twitter {
 	*
 	* @access public
 	* @return void
-	* @uses DevBuddy_Feed_Plugin_Twitter::hide_admin_page() Registers this request
+	* @uses DevBuddy_Feed_Plugin::hide_admin_page() Registers this request
 	* @since 1.0.0
 	*/
 	public function hide_wp_admin_menu_item() {
 		add_action( 'admin_menu', array( $this, 'hide_admin_page' ), 999 );
 	}
-}
+} // END class
+
+} // END class_exists
+
 ?>

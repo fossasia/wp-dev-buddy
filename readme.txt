@@ -2,9 +2,9 @@
 Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
-Requires at least: 3.5
+Requires at least: 3.1.0
 Tested up to: 3.6
-Stable tag: 2.0.3
+Stable tag: 2.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -30,7 +30,7 @@ A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multipl
 
 * It is possible to move the plugin folder from the plugin directory into your theme's directory. Upon requiring `devbuddy-twitter-feed.php` in `functions.php` and changing the `DBTF_PATH` and `DBTF_URL` constants accordingly, you can use this plugin as if native to your theme with all functionality intact.
 
-* You can hide this plugin's settings page by adding one simple line of code to your theme. Simply add `$dbtf->hide_wp_admin_menu_item();` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
+* You can hide this plugin's settings page by adding one simple line of code to your theme. Simply add `if ( is_object( $dbtf ) ) { $dbtf->hide_wp_admin_menu_item(); }` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
 
 * Before this plugin can be used the end user will need to offer it Consumer and OAuth keys that can be obtained by creating an application at the [Twitter developers site](https://dev.twitter.com/apps/new). Further information on this can be found under the "Installation" tab.
 
@@ -82,6 +82,11 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 2.1.0 =
+* Default stylesheet has been updated to be responsive, and to match your theme's appearance as much as possible
+* Despite the work in the 2.0.2 release, the empty timeline feedback didn't render but it does now
+* Minor refactor work on the code to make it less bug and error prone
+
 = 2.0.3 =
 Bug Fix: Using the shortcode to render the feed in the WordPress editor places the feed within the content rather than directly above it.
 
@@ -104,6 +109,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 2.1.0 =
+Default stylesheet has been updated to be responsive, and to match your theme's appearance as much as possible. That and some code cleanup.
 
 = 2.0.3 =
 Fixes a bug that meant the feed would be render before the content, rather than within, if the shortcode was used in the WordPress editor.

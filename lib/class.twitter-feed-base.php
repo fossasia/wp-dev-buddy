@@ -8,7 +8,9 @@
 *
 * @version 1.0.0
 */
-class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
+if ( ! class_exists( 'DB_Twitter_Feed_Base' ) ) {
+
+class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 	/**
 	* @var string The name of the plugin to be used within the code
@@ -188,4 +190,8 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
 		}
 		return $input;
 	}
-}
+} // END class
+
+} // END class_exists
+
+?>
