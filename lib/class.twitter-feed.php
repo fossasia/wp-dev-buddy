@@ -66,8 +66,13 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			if ( ! array_key_exists( $option, $feed_config ) || $feed_config[ $option ] === NULL ) {
 				if ( $option === 'user' ) {
 					$stored_value = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
+
+				} elseif( $option === 'count' ) {
+					$stored_value = $this->get_db_plugin_option( $this->options_name_main, 'result_count' );
+
 				} else {
 					$stored_value = $this->get_db_plugin_option( $this->options_name_main, $option );
+
 				}
 
 				if ( $stored_value !== FALSE ) {
