@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
 Tested up to: 3.6
-Stable tag: 2.2.1
+Stable tag: 2.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,6 +85,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 2.2.2 =
+Added template tag and shortcode sample code in the `assets` folder
+
 = 2.2.1 =
 Bug fix: Fix to a bug that prevented the feed from using the Tweet count set by the user
 
@@ -118,6 +121,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 2.2.2 =
+Added template tag and shortcode sample code in the `assets` folder
 
 = 2.2.1 =
 Fixes a bug that stops the feed from using the Tweet count set by the user.
