@@ -4,7 +4,7 @@ Plugin Name: DevBuddy Twitter Feed Plugin
 Plugin URI: http://wordpress.org/plugins/devbuddy-twitter-feed/
 Description: A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multiple feeds, custom styling, and aims to make your dev process swift.
 Author: Eji Osigwe
-Version: 2.0.1
+Version: 2.2.2
 Author URI: http://www.eji-osigwe.co.uk/
 
 ========================================================================
@@ -26,15 +26,51 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 
+// --------------------------------------------
+// Define plugin-wide constants
+// --------------------------------------------
 define( 'DBTF_PATH', plugin_dir_path( __FILE__ ) );
 define( 'DBTF_URL', plugins_url( NULL, __FILE__ ) );
 
+
+// --------------------------------------------
+// Require Twitter API exchange
+// --------------------------------------------
 require_once DBTF_PATH.'/lib/twitter-api-exchange.php';
+
+
+// --------------------------------------------
+// Require DevBuddy feed plugin base
+// --------------------------------------------
 require_once DBTF_PATH.'/lib/class.plugin-base.php';
+
+
+// --------------------------------------------
+// Require class that manages the plugin
+// --------------------------------------------
 require_once DBTF_PATH.'/lib/class.twitter-feed-base.php';
+
+
+// --------------------------------------------
+// Require and load WP options and settings
+// --------------------------------------------
 require_once DBTF_PATH.'/admin/class.main-options.php';
-require_once DBTF_PATH.'/lib/class.twitter-feed.php';
-require_once DBTF_PATH.'/lib/twitter-feed-template-tag.php';
-$dbtf = new DB_Twitter_Feed_Base;
 $dbtf_wp_options = new DB_Twitter_Feed_Main_Options;
-?>
+
+
+// --------------------------------------------
+// Require class that manages feed instances
+// --------------------------------------------
+require_once DBTF_PATH.'/lib/class.twitter-feed.php';
+
+
+// --------------------------------------------
+// Load the template tag
+// --------------------------------------------
+require_once DBTF_PATH.'/lib/twitter-feed-template-tag.php';
+
+
+// --------------------------------------------
+// Fire it up
+// --------------------------------------------
+$dbtf = new DB_Twitter_Feed_Base;

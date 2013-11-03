@@ -8,7 +8,9 @@
 *
 * @version 1.0.0
 */
-class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
+if ( ! class_exists( 'DB_Twitter_Feed_Base' ) ) {
+
+class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 	/**
 	* @var string The name of the plugin to be used within the code
@@ -128,16 +130,16 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
 	public function register_twitter_feed_sc( $given_atts ) {
 		$default_atts =
 		array(
-			'user'						=> NULL,
-			'count'						=> NULL,
-			'exclude_replies'			=> NULL,
-			'default_styling'			=> NULL,
+			'user'                      => NULL,
+			'count'                     => NULL,
+			'exclude_replies'           => NULL,
+			'default_styling'           => NULL,
 			'cache_hours'               => NULL,
-			'clear_cache'				=> NULL,
-			'oauth_access_token'		=> NULL,
-			'oauth_access_token_secret'	=> NULL,
-			'consumer_key'				=> NULL,
-			'consumer_secret'			=> NULL
+			'clear_cache'               => NULL,
+			'oauth_access_token'        => NULL,
+			'oauth_access_token_secret' => NULL,
+			'consumer_key'              => NULL,
+			'consumer_secret'           => NULL
 		);
 
 		extract(
@@ -146,16 +148,17 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
 
 		$feed_config =
 		array(
-			'user'						=> $user,
-			'count'						=> $count,
-			'exclude_replies'			=> $exclude_replies,
-			'default_styling'			=> $default_styling,
+			'user'                      => $user,
+			'count'                     => $count,
+			'exclude_replies'           => $exclude_replies,
+			'default_styling'           => $default_styling,
 			'cache_hours'               => $cache_hours,
-			'clear_cache'				=> $clear_cache,
-			'oauth_access_token'		=> $oauth_access_token,
-			'oauth_access_token_secret'	=> $oauth_access_token_secret,
-			'consumer_key'				=> $consumer_key,
-			'consumer_secret'			=> $consumer_secret
+			'clear_cache'               => $clear_cache,
+			'oauth_access_token'        => $oauth_access_token,
+			'oauth_access_token_secret' => $oauth_access_token_secret,
+			'consumer_key'              => $consumer_key,
+			'consumer_secret'           => $consumer_secret,
+			'is_shortcode_called'       => TRUE
 		);
 
 		return db_twitter_feed( $feed_config );
@@ -187,4 +190,8 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin_Twitter {
 		}
 		return $input;
 	}
-}
+} // END class
+
+} // END class_exists
+
+?>

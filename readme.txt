@@ -2,9 +2,9 @@
 Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
-Requires at least: 3.5
+Requires at least: 3.1.0
 Tested up to: 3.6
-Stable tag: 2.0.1
+Stable tag: 2.2.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -16,21 +16,24 @@ A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multipl
 
 **Features**:
 
-* Nice and simple settings page
-* Embed multiple Twitter timelines on one page
-* Use either a template tag or a shortcode to render feeds
-* All feeds are cached on first render to reduce subsequent load times, along with the option to choose who many hours the cache lasts
-* Well thought out and thorough HTML that is also compliant with Twitter's rules on displaying their feeds
-* A default stylesheet is included that you can use either for display or for study when creating your own
 * Sensitive OAuth and Consumer data is masked within the WordPress admin to prevent unauthorised access to your app data
+* Use either a template tag or a shortcode to render feeds
+* Developers can utilise the plugin system to create their own template tags and shortcodes
+* A default stylesheet is included that you can use either for display or for study when creating your own
+* All feeds are cached on first render to reduce subsequent load times, along with the option to choose who many hours the cache lasts
+* Embed multiple Twitter timelines on one page
+* Nice and simple settings page, which can also be hidden
+* Perfect for theme developers wanting a truly white label solution
 
 **Tips**:
 
-* Multiple feeds on the same page could each easily be styled differently by wrapping each feed within an element with its own ID and using descendant selectors when styling elements for each.
+* It's possible to implement your own HTML layout for the feed by creating your own template tag and shortcode. It's a very straightforward process and there are sample files included in the "assets" directory of this plugin to guide you through.
 
 * It is possible to move the plugin folder from the plugin directory into your theme's directory. Upon requiring `devbuddy-twitter-feed.php` in `functions.php` and changing the `DBTF_PATH` and `DBTF_URL` constants accordingly, you can use this plugin as if native to your theme with all functionality intact.
 
-* You can hide this plugin's settings page by adding one simple line of code to your theme. Simply add `$dbtf->hide_wp_admin_menu_item();` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
+* You can hide this plugin's settings page by adding one simple line of code to your theme. Simply add `if ( is_object( $dbtf ) ) { $dbtf->hide_wp_admin_menu_item(); }` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
+
+* Multiple feeds on the same page could each easily be styled differently by wrapping each feed within an element with its own ID and using descendant selectors when styling elements for each.
 
 * Before this plugin can be used the end user will need to offer it Consumer and OAuth keys that can be obtained by creating an application at the [Twitter developers site](https://dev.twitter.com/apps/new). Further information on this can be found under the "Installation" tab.
 
@@ -82,30 +85,69 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
-= 1.0.0 =
-First release.
+= 2.2.2 =
+Added template tag and shortcode sample code in the `assets` folder
 
-= 1.0.1 =
-Amendment of plugin description and settings page to include important and useful information.
+= 2.2.1 =
+Bug fix: Fix to a bug that prevented the feed from using the Tweet count set by the user
+
+= 2.2.0 =
+Developers can now utilise the plugin system to create their own template tags and shortcodes. Samples are included in the "assets" directory of this plugin.
+
+= 2.1.0 =
+* Default stylesheet has been updated to be responsive, and to match your theme's appearance as much as possible
+* Despite the work in the 2.0.2 release, the empty timeline feedback didn't render but it does now
+* Minor refactor work on the code to make it less bug and error prone
+
+= 2.0.3 =
+Bug Fix: Using the shortcode to render the feed in the WordPress editor places the feed within the content rather than directly above it.
+
+= 2.0.2 =
+* Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathmetically, i.e. 372489002391470081 instead of 3.7248900239147E+17. 
+* The feed now offers friendly feedback should the timeline requested be empty.
+
+= 2.0.1 =
+Minor rectifications to code that prevented the defaut stylesheet from loading
 
 = 2.0.0 =
 * Complete overhaul of the plugin's code. Code is now much more modular and refined
 * `cache_hours` was added and implemented as a feed configuration option
 * Addition of masking/unmasking facilities utilised within the admin to hide sensitive OAuth and Consumer Key/Secret data
 
-= 2.0.1 =
-Minor rectifications to code that prevented the defaut stylesheet from loading
-
-== Upgrade Notice ==
+= 1.0.1 =
+Amendment of plugin description and settings page to include important and useful information.
 
 = 1.0.0 =
 First release.
 
-= 1.0.1 =
-Amendment of plugin description and settings page to include important and useful information. Not an urgent upgrade.
+== Upgrade Notice ==
+
+= 2.2.2 =
+Added template tag and shortcode sample code in the `assets` folder
+
+= 2.2.1 =
+Fixes a bug that stops the feed from using the Tweet count set by the user.
+
+= 2.2.0 =
+Developers can now utilise the plugin system to create their own template tags and shortcodes. Samples are included in the "assets" directory of this plugin.
+
+= 2.1.0 =
+Default stylesheet has been updated to be responsive, and to match your theme's appearance as much as possible. That and some code cleanup.
+
+= 2.0.3 =
+Fixes a bug that meant the feed would be rendered before the content, rather than within, if the shortcode was used in the WordPress editor.
+
+= 2.0.2 =
+Fixes a bug that led to IDs being read mathematically. As some of the links rendered by the feed use these IDs, those links may have been faulty as a result.
+
+= 2.0.1 =
+Minor rectifications to code that prevented the default stylesheet from loading. Update to be able to take advantage of the bundled stylesheet.
 
 = 2.0.0 =
 The plugin code structure has undergone considerable changes but this won't be noticeable to the user. Additionally, you can now change the number of hours that the feed is cached for and sensitive OAuth and Consumer Key/Secret data is now masked in the admin.
 
-= 2.0.1 =
-Minor rectifications to code that prevented the defaut stylesheet from loading. Update to be able to take advantage of the bundled stylesheet.
+= 1.0.1 =
+Amendment of plugin description and settings page to include important and useful information. Not an urgent upgrade.
+
+= 1.0.0 =
+First release.

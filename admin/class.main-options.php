@@ -5,6 +5,8 @@
 *
 * @version 1.0.0
 */
+if ( ! class_exists( 'DB_Twitter_Feed_Main_Options' ) ) {
+
 class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 
 	/**
@@ -422,5 +424,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 
 		echo ' />';
 	}
-}
+}// END class
+
+}// END class_exists
 ?>
