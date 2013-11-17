@@ -46,14 +46,15 @@
 			}
 
 	/*	Display name/@screen name */
-	.tweet_header {
+	.tweet_header,
+	.tweet_primary_meta {
 		font-weight:bold;
 	}
 		.tweet_user {
 			
 		}
 		.tweet_screen_name {
-			color:#a0a0a0;
+			opacity:0.6;
 		}
 
 	/* The tweet text */
@@ -62,11 +63,13 @@
 	}
 
 	/* Tweet footer */
-	.tweet_footer {
+	.tweet_footer,
+	.tweet_secondary_meta {
 		font-size:79%;
 	}
 		/* Tweet meta info */
-		.tweet_footer a {
+		.tweet_footer a,
+		.tweet_seondary_meta a {
 			
 		}
 		.tweet_date {

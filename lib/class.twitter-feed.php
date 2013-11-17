@@ -8,11 +8,23 @@
 * array as the parameter to properly initialise the
 * object instance.
 *
-* @version 1.0.2
+* @version 1.0.3
 */
 if ( ! class_exists( 'DB_Twitter_Feed' ) ) {
 
 class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
+
+	/**
+	* @var array A holding place for parsed tweet data
+	* @since 1.0.3
+	*/
+	protected $tweet;
+
+	/**
+	* @var object Holds an instance of the HTML rendering class
+	* @since 1.0.3
+	*/
+	public $html;
 
 	/**
 	* @var string Main Twitter URL
@@ -62,16 +74,16 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$feed_config = array();
 		}
 
-		foreach ( $this->options as $option => $value ) {
+		foreach ( $this->defaults as $option => $value ) {
 			if ( ! array_key_exists( $option, $feed_config ) || $feed_config[ $option ] === NULL ) {
 				if ( $option === 'user' ) {
-					$stored_value = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
+					$stored_value = $this->get_option( $this->options_name_main, 'twitter_username' );
 
 				} elseif( $option === 'count' ) {
-					$stored_value = $this->get_db_plugin_option( $this->options_name_main, 'result_count' );
+					$stored_value = $this->get_option( $this->options_name_main, 'result_count' );
 
 				} else {
-					$stored_value = $this->get_db_plugin_option( $this->options_name_main, $option );
+					$stored_value = $this->get_option( $this->options_name_main, $option );
 
 				}
 
@@ -86,6 +98,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			}
 		}
 
+
 	/*	The shortcode delivered feed config brings with it
 		the 'is_shortcode_called' option */
 
@@ -96,6 +109,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		if ( isset( $feed_config['is_shortcode_called'] ) && $feed_config['is_shortcode_called'] === TRUE ) {
 			$this->is_shortcode_called = TRUE;
 		}
+
 
 	/*	Check to see if there is a cache available with the
 		username provided. Move into the output if so */
@@ -115,10 +129,21 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$this->is_cached = FALSE;
 		}
 
+
 		// Load the bundled stylesheet if requested
 		if ( $this->options['default_styling'] === 'yes' ) {
 			$this->load_default_styling();
 		}
+
+
+		// Load the HTML rendering class
+		$url_data = array(
+			'tw'     => $this->tw,
+			'search' => $this->search,
+			'intent' => $this->intent
+		);
+		$this->html = new DB_Twitter_HTML( $this->options, $url_data );
+
 
 		// Get Twitter object
 		$auth_data = array(
@@ -193,9 +218,6 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	*/
 	public function has_errors() {
 
-	/*	If Twitter's having none of it (most likely due to
-		bad config) then we get the errors and display them
-		to the user */
 		if ( is_object( $this->feed_data ) && is_array( $this->feed_data->errors ) ) {
 			$this->errors = $this->feed_data->errors;
 			return TRUE;
@@ -211,7 +233,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	/**
 	* Parse and return useful tweet data from an individual tweet in an array
 	*
-	* This is best utilised within a foreach() loop that iterates through a
+	* This is best utilised within an iteration loop that iterates through a
 	* populated $feed_data.
 	*
 	* @access public
@@ -276,9 +298,9 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		$tweet['text']				= $t->text;
 
 		if ( (int) $this->options['cache_hours'] <= 2 ) {
-			$tweet['date']         = $this->formatify_date( $t->created_at );
+			$tweet['date']          = $this->formatify_date( $t->created_at );
 		} else {
-			$tweet['date']         = $this->formatify_date( $t->created_at, FALSE );
+			$tweet['date']          = $this->formatify_date( $t->created_at, FALSE );
 		}
 
 		$tweet['user_replied_to']	= $t->in_reply_to_screen_name;
@@ -363,13 +385,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		bad config) then we get the errors and display them
 		to the user */
 		if ( $this->has_errors() ) {
-			$this->output .= '<pre>Twitter has returned errors:';
+			$this->output .= '<p>Twitter has returned errors:</p>';
+			$this->output .= '<ul>';
 
-			foreach ( $this->feed_data->errors as $error ) {
-				$this->output .= '<br />- &ldquo;'.$error->message.' [error code: '.$error->code.']&rdquo;';
+			foreach ( $this->errors as $error ) {
+				$this->output .= '<li>&ldquo;'.$error->message.' [error code: '.$error->code.']&rdquo;</li>';
 			}
 
-			$this->output .= '</pre>';
+			$this->output .= '</ul>';
+			$this->output .= '<p>More information on errors <a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank" title="Twitter API Error Codes and Responses">here</a>.</p>';
 
 	/*	If the timeline of the user requested is empty we
 		let the user know */
@@ -400,75 +424,52 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	* @return void
 	* @since 1.0.0
 	*/
-	public function render_tweet_html( $t ) {
+	public function render_tweet_html( $the_tweet ) {
 
-		$tweet = $this->parse_tweet_data( $t );
+		$this->tweet = $this->parse_tweet_data( $the_tweet );
+
+		$this->html->set( $this->tweet );
 
 		// START Rendering the Tweet's HTML (outer tweet wrapper)
-		$this->output .= '<article class="tweet">';
+		$this->output .= $this->html->open_tweet();
 
-		// START Tweet content (inner tweet wrapper)
-		$this->output .= '<div class="tweet_content">';
 
-		// START Display pic
-		$this->output .= '<figure class="tweet_profile_img">';
-		$this->output .= '<a href="'.$this->tw.$tweet['user_screen_name'].'" target="_blank" title="'.$tweet['user_display_name'].'"><img src="'.$tweet['profile_img_url'].'" alt="'.$tweet['user_display_name'].'" /></a>';
-		$this->output .= '</figure>';
-		// END Display pic
+			// START Tweet content (inner tweet wrapper)
+			$this->output .= $this->html->open_tweet_content();
 
-		// START Twitter username/@screen name
-		$this->output .= '<header class="tweet_header">';
-		$this->output .= '<a href="'.$this->tw.$tweet['user_screen_name'].'" target="_blank" class="tweet_user" title="'.$tweet['user_description'].'">'.$tweet['user_display_name'].'</a>';
-		$this->output .= ' <span class="tweet_screen_name">@'.$tweet['user_screen_name'].'</span>';
-		$this->output .= '</header>';
-		// END Twitter username/@screen name
 
-		// START The Tweet text
-		$this->output .= '<div class="tweet_text">'.$tweet['text'].'</div>';
-		// END The Tweet text
+				// START Tweeter's display picture
+				$this->output .= $this->html->tweet_display_pic();
+				// END Tweeter's display picture
 
-		// START Tweet footer
-		$this->output .= '<div class="tweet_footer">';
 
-		// START Tweet date
-		$this->output .= '<a href="'.$this->tw.$tweet['user_screen_name'].'/status/'.$tweet['id'].'" target="_blank" title="View this tweet in Twitter" class="tweet_date">'.$tweet['date'].'</a>';
-		// END Tweet date
+				// START Tweet user info
+				$this->output .= $this->html->open_tweet_primary_meta();
+					$this->output .= $this->html->tweet_display_name_link();
+				$this->output .= $this->html->close_tweet_primary_meta();
+				// END Tweet user info
 
-		// START "Retweeted by"
-		if ( $tweet['is_retweet'] ) {
-			$this->output .= '<span class="tweet_retweet">';
-			$this->output .= '<span class="tweet_icon tweet_icon_retweet"></span>';
-			$this->output .= 'Retweeted by ';
-			$this->output .= '<a href="'.$this->tw.$tweet['retweeter_screen_name'].'" target="_blank" title="'.$tweet['retweeter_display_name'].'">'.$tweet['retweeter_display_name'].'</a>';
-			$this->output .= '</span>';
-		}
-		// END "Retweeted by"
 
-		// START Tweet intents
-		$this->output .= '<div class="tweet_intents">';
+				// START Actual tweet
+				$this->output .= $this->html->tweet_text();
+				// END Actual tweet
 
-		// START Reply intent
-		$this->output .= '<a href="'.$this->intent.'tweet?in_reply_to='.$tweet['id'].'" title="Reply to this tweet" target="_blank" class="tweet_intent_reply">';
-		$this->output .= '<span class="tweet_icon tweet_icon_reply"></span>';
-		$this->output .= '<b>Reply</b></a>';
-		// END Reply intent
 
-		// START Retweet intent
-		$this->output .= '<a href="'.$this->intent.'retweet?tweet_id='.$tweet['id'].'" title="Retweet this tweet" target="_blank" class="tweet_intent_retweet">';
-		$this->output .= '<span class="tweet_icon tweet_icon_retweet"></span>';
-		$this->output .= '<b>Retweet</b></a>';
-		// END Retweet intent
+				// START Tweet meta data
+				$this->output .= $this->html->open_tweet_secondary_meta();
+					$this->output .= $this->html->tweet_date();
+					$this->output .= $this->html->tweet_retweeted();
+					$this->output .= $this->html->tweet_intents();
+				$this->output .= $this->html->close_tweet_secondary_meta();
+				// END Tweet meta data
 
-		// START Favourite intent
-		$this->output .= '<a href="'.$this->intent.'favorite?tweet_id='.$tweet['id'].'" title="Favourite this tweet" target="_blank" class="tweet_intent_favourite">';
-		$this->output .= '<span class="tweet_icon tweet_icon_favourite"></span>';
-		$this->output .= '<b>Favourite</b></a>';
-		// END Favourite intent
 
-		$this->output .= '</div>';     // END Tweet intents
-		$this->output .= '</div>';     // END Tweet footer
-		$this->output .= '</div>';     // END Tweet content
-		$this->output .= '</article>'; // END Rendering Tweet's HTML
+			$this->output .= $this->html->close_tweet_content();
+			// END Tweet content
+
+
+		$this->output .= $this->html->close_tweet();
+		// END Rendering Tweet's HTML
 
 	}
 
@@ -603,8 +604,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		echo $this->output;
 
 	}
+
 } // END class
 
 } // END class_exists
-
-?>

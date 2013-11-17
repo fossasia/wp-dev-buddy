@@ -7,7 +7,7 @@
 * and methods that will be common across feed
 * plugins.
 *
-* @version 1.0.0
+* @version 1.0.2
 */
 if ( ! class_exists( 'DevBuddy_Feed_Plugin' ) ) {
 
@@ -24,9 +24,19 @@ class DevBuddy_Feed_Plugin {
 	public $feed_data;
 
 	/**
+	* @var array Holds the configuration options once the feed class has been instantiated
+	*/
+	public $options = array();
+
+	/**
 	* @var string The output of the entire feed will be stored here
 	*/
 	public $output = '';
+
+	/**
+	* @var int The number of feed items that have been rendered
+	*/
+	private $item_count = 0;
 
 	/**
 	* @var bool A boolean indication of whether or not a cached version of the output is available
@@ -41,12 +51,12 @@ class DevBuddy_Feed_Plugin {
 	/**
 	* @var string The width of the display picture when set by the user
 	*/
-	protected $dp_width;
+	private $dp_width;
 
 	/**
 	* @var string The height of the display picture when set by the user
 	*/
-	protected $dp_height;
+	private $dp_height;
 
 
 	/**
@@ -64,9 +74,9 @@ class DevBuddy_Feed_Plugin {
 	* @param string $option_entry The option name that WP recognises as an entry
 	* @param string $option_name  The name of the specific option you want the value of
 	*
-	* @since 1.0.0
+	* @since 1.0.1
 	*/
-	public function get_db_plugin_option( $option_entry, $option_name ) {
+	public function get_option( $option_entry, $option_name ) {
 		$options = get_option( $option_entry );
 
 		if ( isset( $options[ $option_name ] ) && $options[ $option_name ] != '' ) {
@@ -78,38 +88,42 @@ class DevBuddy_Feed_Plugin {
 
 
 	/**
-	* Check that an option exists and validate it
-	*
-	* Will likely be removed. Validation should really be
-	* specific to each feed's needs.
+	* An alias of DevBuddy_Feed_Plugin::get_option()
 	*
 	* @access public
-	* @return mixed
+	* @return mixed The value of the option you're looking for or FALSE if no value exists
 	*
-	* @param mixed  $given_value
-	* @param string $option_name
-	* @param mixed  $default
+	* @param string $option_entry The option name that WP recognises as an entry
+	* @param string $option_name  The name of the specific option you want the value of
 	*
 	* @since 1.0.0
 	*/
-	public function validate_option( $given_value, $option_name, $default = FALSE ) {
-		if ( $option_name === 'user' && $given_value != '' ) {
-			return $given_value;
+	public function get_db_plugin_option( $option_entry, $option_name ) {
+		return $this->get_option( $option_entry, $option_name );
+	}
 
-		} else {
-			if ( $option_name !== 'user' && ( $given_value === 'yes' || $given_value === 'no' || is_numeric( $given_value ) || (int) $given_value > 0 ) ) {
-				return $given_value;
 
-			} else {
-				$stored_value = $this->get_db_plugin_option( $this->options_name_main, $option_name );
-				if ( $stored_value && $stored_value != '' ) {
-					return $stored_value;
+	/**
+	* Increase the feed item count by one
+	*
+	* @access public
+	* @return void
+	* @since 1.0.1
+	*/
+	public function increase_feed_item_count() {
+		$this->item_count++;
+	}
 
-				} else {
-					return $default;
-				}
-			}
-		}
+
+	/**
+	* Increase the feed item count by one
+	*
+	* @access public
+	* @return void
+	* @since 1.0.1
+	*/
+	public function get_item_count() {
+		return $this->item_count;
 	}
 
 
@@ -128,7 +142,12 @@ class DevBuddy_Feed_Plugin {
 	public function cache_output( $hours = 0 ) {
 		if ( (int) $hours !== 0 ) {
 			set_transient( $this->plugin_name.'_output_'.$this->options['user'], $this->output, 3600*$hours );
-			$this->is_cached = TRUE;
+
+			$cache_successful = get_transient( $this->plugin_name.'_output_'.$this->options['user'] );
+
+			if ( $cache_successful ) {
+				$this->is_cached = TRUE;
+			}
 		}
 	}
 
@@ -149,7 +168,12 @@ class DevBuddy_Feed_Plugin {
 	*/
 	public function clear_cache_output( $user ) {
 		delete_transient( $this->plugin_name.'_output_'.$user );
-		$this->is_cached = FALSE;
+
+		$clear_cache_successful = ( get_transient( $this->plugin_name.'_output_'.$user ) ) ? FALSE : TRUE;
+
+		if ( $clear_cache_successful ) {
+			$this->is_cached = FALSE;
+		}
 	}
 
 
@@ -170,24 +194,24 @@ class DevBuddy_Feed_Plugin {
 	*/
 	protected function formatify_date( $datetime, $relative_datetime = TRUE ) {
 		$an_hour = 3600;
-		$a_day  = $an_hour*24;
-		$a_week = $a_day*7;
+		$a_day   = $an_hour*24;
+		$a_week  = $a_day*7;
 
-		$now = time();
+		$now  = time();
 		$then = strtotime( $datetime );
 		$diff = $now - $then;
 
-		$mins = $diff / 60 % 60;
-		$the_mins_ago = $mins;
+		$mins          = $diff / 60 % 60;
+		$the_mins_ago  = $mins;
 		$the_mins_ago .= ( $mins == '1' ) ? ' minute ago' : ' minutes ago';
 
-		$hours = $diff / 3600 % 24;
-		$the_hours_ago = 'About ';
+		$hours          = $diff / 3600 % 24;
+		$the_hours_ago  = 'About ';
 		$the_hours_ago .= $hours;
 		$the_hours_ago .= ( $hours == '1' ) ? ' hour ago' : ' hours ago';
 
 		$the_time = date( 'H:i', $then );
-		$the_day = date( 'D', $then );
+		$the_day  = date( 'D', $then );
 		$the_date = date( 'j M', $then );
 
 
@@ -240,30 +264,94 @@ class DevBuddy_Feed_Plugin {
 	* or a string with the width and height seperated with
 	* an "x".
 	*
-	* @access protected
+	* @access public
 	* @return void
 	* @since 1.0.0
 	*
 	* @param mixed $width_height The desired width/height of the display picture; either a string or an array is accepted
 	*/
 	/************************************************/
-	protected function set_dp_size( $width_height ) {
+	public function set_dp_size( $width_height ) {
+		$min_size = 10;
+		$max_size = 200;
+
 		if ( ! is_array( $width_height ) ) {
 			$width_height_arr = explode( 'x', $width_height );
 
-			if ( is_array( $width_height_arr ) && count( $width_height_arr ) === 2 ) {
-				$this->dp_width  = $width_height_arr[0];
-				$this->dp_height = $width_height_arr[1];
+			// No "x" was present
+			if ( is_array( $width_height_arr ) && count( $width_height_arr ) === 1 ) {
+				$width_height_arr[0] = $width_height_arr[0];
+				$width_height_arr[1] = $width_height_arr[0];
 
+			// "x" was present
+			} elseif ( is_array( $width_height_arr ) && count( $width_height_arr ) === 2 ) {
+				/* Don't actually need to do anything here,
+				   but we don't want this condition getting
+				   caught in the "else" either */
+
+			// Empty string
 			} else {
-				$this->dp_width  = $width_height;
-				$this->dp_height = $width_height;
+				$width_height_arr[0] = $this->defaults['dp_size'];
+				$width_height_arr[1] = $this->defaults['dp_size'];
 			}
 
-		} elseif ( is_array( $width_height ) ) {
-			$this->dp_width  = $width_height[0];
-			$this->dp_height = $width_height[1];
+		// An array of two items, both numeric
+		} elseif( is_array( $width_height ) && count( $width_height ) === 2 ) {
+			$width_height_arr[0] = $width_height[0];
+			$width_height_arr[1] = $width_height[1];
 		}
+
+		// Check for minimums and maximums
+		$i = 0;
+		foreach ( $width_height_arr as $dimension ) {
+			if ( $dimension < $min_size ) {
+				$width_height_arr[ $i ] = $min_size;
+
+			} elseif( $dimension > $max_size ) {
+				$width_height_arr[ $i ] = $max_size;
+			}
+
+			$i++;
+		}
+		unset( $i );
+
+		$this->dp_width  = $width_height_arr[0];
+		$this->dp_height = $width_height_arr[1];
+	}
+
+
+	/**
+	* Return the values of the display picture size
+	*
+	* This value is set via DevBuddy_Feed_Plugin::set_dp_size()
+	*
+	* @access public
+	* @return array
+	* @since 1.0.1
+	*/
+	public function get_dp_size() {
+		$dp = array( 'width' => $this->dp_width, 'height' => $this->dp_height );
+		return $dp;
+	}
+
+
+	/**
+	* Converts comma-separated values in a string to an array
+	*
+	* Sometimes a value may be either an array or a string
+	* so this is a way to ensure that we always get a the
+	* format we want
+	*
+	* @access public
+	* @return mixed
+	* @since 1.0.2
+	*/
+	public function list_convert( $list ) {
+		if ( ! is_array( $list ) ) {
+			$list = explode( ',', $list );
+		}
+
+		return $list;
 	}
 
 
@@ -320,9 +408,8 @@ class DevBuddy_Feed_Plugin {
 	/**
 	* A request to hide the plugin's WordPress admin menu item
 	*
-	* This method is used to register the hiding of
-	* this plugin's menu item from the WordPress admin
-	* menu but it does not execute it.
+	* This method is used to execute the hiding of
+	* this plugin's menu item from the WordPress admin.
 	*
 	* @access public
 	* @return void
@@ -332,6 +419,7 @@ class DevBuddy_Feed_Plugin {
 	public function hide_wp_admin_menu_item() {
 		add_action( 'admin_menu', array( $this, 'hide_admin_page' ), 999 );
 	}
+
 } // END class
 
 } // END class_exists

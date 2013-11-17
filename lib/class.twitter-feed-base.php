@@ -40,12 +40,12 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	/**
 	* @var array Holds the configuration options and their default and/or user defined values
 	*/
-	public $options = array(
+	protected $defaults = array(
 		'user'                      => 'EjiOsigwe', // String: Any valid Twitter username
 		'count'                     => '10',        // String: Number of tweets to retrieve
 		'exclude_replies'           => 'no',        // String: ("yes" or "no") Only display tweets that aren't replies
 		'default_styling'           => 'no',        // String: ("yes" or "no") Load the bundled stylesheet
-		'cache_hours'               => 3,           // Int:    Number of hours to cache the output
+		'cache_hours'               => 0,           // Int:    Number of hours to cache the output
 		'clear_cache'               => 'no',        // String: ("yes" or "no") Clear the cache for the set "user",
 		'oauth_access_token'        => NULL,        // String: The OAuth Access Token
 		'oauth_access_token_secret' => NULL,        // String: The OAuth Access Token Secret
@@ -71,7 +71,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_default_styling' ) );
 		add_shortcode( 'db_twitter_feed', array( $this, 'register_twitter_feed_sc' ) );
 
-		if ( $this->get_db_plugin_option( $this->options_name_main, 'default_styling' ) === 'yes' )
+		if ( $this->get_option( $this->options_name_main, 'default_styling' ) === 'yes' )
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_default_styling' ) );
 	}
 
@@ -98,7 +98,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @since 1.0.0
 	*/
 	public function register_default_styling() {
-		wp_register_style( $this->plugin_name.'-default', DBTF_URL.'/assets/feed.css', NULL, '1.0', 'all' );
+		wp_register_style( $this->plugin_name.'-default', DBTF_URL.'/assets/feed.css', NULL, '2.1', 'all' );
 	}
 
 
@@ -177,16 +177,16 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	*/
 	public function unmask_data( $input ) {
 		if ( preg_match( '|^([0-9]+)-([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token'] ) === 1 ) {
-			$input['oauth_access_token'] = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token' );
+			$input['oauth_access_token'] = $this->get_option( $this->options_name_main, 'oauth_access_token' );
 		}
 		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token_secret'] ) === 1 ) {
-			$input['oauth_access_token_secret'] = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token_secret' );
+			$input['oauth_access_token_secret'] = $this->get_option( $this->options_name_main, 'oauth_access_token_secret' );
 		}
 		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['consumer_key'] ) === 1 ) {
-			$input['consumer_key'] = $this->get_db_plugin_option( $this->options_name_main, 'consumer_key' );
+			$input['consumer_key'] = $this->get_option( $this->options_name_main, 'consumer_key' );
 		}
 		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['consumer_secret'] ) === 1 ) {
-			$input['consumer_secret'] = $this->get_db_plugin_option( $this->options_name_main, 'consumer_secret' );
+			$input['consumer_secret'] = $this->get_option( $this->options_name_main, 'consumer_secret' );
 		}
 		return $input;
 	}

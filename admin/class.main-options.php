@@ -242,7 +242,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 			<form id="<?php echo $this->plugin_name ?>_settings" action="options.php" method="post">
 				<?php
 				if ( isset( $_GET['settings-updated'] ) && (bool) $_GET['settings-updated'] === TRUE ) {
-					$user = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
+					$user = $this->get_option( $this->options_name_main, 'twitter_username' );
 					$this->clear_cache_output( $user );
 				}
 
@@ -266,7 +266,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @param array $args[desc]   The description to accompany this field in the admin
 	*/
 	public function write_checkbox_field( $args ) {
-		$stored_value = $this->get_db_plugin_option( $this->options_name_main, $args['option'] );
+		$stored_value = $this->get_option( $this->options_name_main, $args['option'] );
 
 		echo '<input type="checkbox" name="'.$this->options_name_main.'['.$args['option'].']" value="yes"';
 		if( $stored_value && $stored_value === 'yes') {
@@ -293,7 +293,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @param array $args[desc]   The description to accompany this field in the admin
 	*/
 	public function write_numeric_dropdown_field( $args ) {
-		$stored_value = $this->get_db_plugin_option( $this->options_name_main, $args['option'] );
+		$stored_value = $this->get_option( $this->options_name_main, $args['option'] );
 
 		echo '<select name="'.$this->options_name_main.'['.$args['option'].']">';
 
@@ -336,7 +336,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function write_consumer_key_field() {
-		$consumer_key = $this->get_db_plugin_option( $this->options_name_main, 'consumer_key' );
+		$consumer_key = $this->get_option( $this->options_name_main, 'consumer_key' );
 		$consumer_key = $this->mask_data( $consumer_key );
 
 		echo '<input type="text" name="'.$this->options_name_main.'[consumer_key]" value="'.$consumer_key.'" style="width:450px;" />';
@@ -351,7 +351,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function write_consumer_secret_field() {
-		$consumer_secret = $this->get_db_plugin_option( $this->options_name_main, 'consumer_secret' );
+		$consumer_secret = $this->get_option( $this->options_name_main, 'consumer_secret' );
 		$consumer_secret = $this->mask_data( $consumer_secret );
 
 		echo '<input type="text" name="'.$this->options_name_main.'[consumer_secret]" value="'.$consumer_secret.'" style="width:450px;" />';
@@ -366,7 +366,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function write_oauth_access_token_field() {
-		$oauth_access_token = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token' );
+		$oauth_access_token = $this->get_option( $this->options_name_main, 'oauth_access_token' );
 
 		$oat_arr = explode( '-', $oauth_access_token );
 		$start = strlen( $oat_arr[0] );
@@ -385,7 +385,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function write_oauth_access_token_secret_field() {
-		$oauth_access_token_secret = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token_secret' );
+		$oauth_access_token_secret = $this->get_option( $this->options_name_main, 'oauth_access_token_secret' );
 		$oauth_access_token_secret = $this->mask_data( $oauth_access_token_secret );
 
 		echo '<input type="text" name="'.$this->options_name_main.'[oauth_access_token_secret]" value="'.$oauth_access_token_secret.'" style="width:450px;" />';
@@ -414,7 +414,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	function write_twitter_username_field() {
-		$twitter_username = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
+		$twitter_username = $this->get_option( $this->options_name_main, 'twitter_username' );
 
 		echo '<strong>twitter.com/<input type="text" name="'.$this->options_name_main.'[twitter_username]"';
 

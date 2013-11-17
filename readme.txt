@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
 Tested up to: 3.6
-Stable tag: 2.2.2
+Stable tag: 2.3.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -25,17 +25,9 @@ A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multipl
 * Nice and simple settings page, which can also be hidden
 * Perfect for theme developers wanting a truly white label solution
 
-**Tips**:
 
-* It's possible to implement your own HTML layout for the feed by creating your own template tag and shortcode. It's a very straightforward process and there are sample files included in the "assets" directory of this plugin to guide you through.
 
-* It is possible to move the plugin folder from the plugin directory into your theme's directory. Upon requiring `devbuddy-twitter-feed.php` in `functions.php` and changing the `DBTF_PATH` and `DBTF_URL` constants accordingly, you can use this plugin as if native to your theme with all functionality intact.
-
-* You can hide this plugin's settings page by adding one simple line of code to your theme. Simply add `if ( is_object( $dbtf ) ) { $dbtf->hide_wp_admin_menu_item(); }` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
-
-* Multiple feeds on the same page could each easily be styled differently by wrapping each feed within an element with its own ID and using descendant selectors when styling elements for each.
-
-* Before this plugin can be used the end user will need to offer it Consumer and OAuth keys that can be obtained by creating an application at the [Twitter developers site](https://dev.twitter.com/apps/new). Further information on this can be found under the "Installation" tab.
+Before this plugin can be used the end user will need to offer it Consumer and OAuth keys that can be obtained by creating an application at the Twitter developers site. Further information on this can be found under the "Installation" tab.
 
 == Installation ==
 
@@ -59,7 +51,7 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 **Options set via tempate tag or shortcode take highest priority. If an option is not set in the tag/shortcode this plugin will then check to see if the option is set in the WordPress admin. If no options have been set the plugin will render with the defaults, listed below**
 
-**user (string)**; *default*: twitterapi
+**user (string)**; *default*: EjiOsigwe
 > Any valid Twitter username.
 
 **count (int)**; *default*: 10
@@ -72,7 +64,7 @@ Both accept the same arguments/attributes which are all listed and explained bel
 > The option of whether or not to load the default stylesheet bundled with this plugin. Go with `yes` to load it, `no` to skip loading it. Bear in mind that once the stylesheet is loaded it is loaded to the page so all feeds on the page will be affected by it. Hence, when rendering multiple feeds you only need to `yes` with one, and leave it out of the others.
 
 **cache_hours (int)**; *default*: 0
-> The number of hours you would like the feed cached for. The cache is saved using WordPress' own `set_transient()` function which means that when it is cached once, it is then cached for every subsequent visitor to your site for the duration that the cache exists.
+> The number of hours you would like the feed cached for. The cache is saved using WordPress' own `set_transient()` function.
 
 **clear_cache (string)**: `yes` or `no`; *default*: `no`
 > Clears the cached version of the feed. If a cached version exists this plugin skips looking at the options altogether so this is a must if you're changing any options. If you're using either the template tag or the shortcode *without* passing information (i.e. all settings from settings page), the cache will be cleared each time the "Save Changes" button is clicked on the plugin's settings page. **This option will only work if the "user" option has been set**
@@ -83,7 +75,23 @@ Both accept the same arguments/attributes which are all listed and explained bel
 **oauth_access_token_secret (string)**; *default*: N/A
 > See the first part of the "Installation" tab to find out how to get these. They are necessary for authenticating your communication with Twitter and this plugin unfortunately won't work without them.
 
+== Frequently Asked Questions ==
+
+**How do I create my own template tag and shortcode?**
+> Simply take a look at the sample files in the `assets` directory of this plugin. The code in these files can be copied over to your theme (included in your functions.php file) and customised to suit your needs. The sample files are well commented and will work right out of the box.
+
+**How can I use this plugin as a native feature of my theme rather than as a plugin?**
+> Move the plugin folder from the plugin directory into your theme's directory. Then include the `devbuddy-twitter-feed.php` file from your `functions.php` file. After that, open up the `devbuddy-twitter-feed.php` file and amend the `DBTF_PATH` and `DBTF_URL` constants accordingly. And that's it.
+
+**Can I hide this plugin's option page from the WordPress admin menu?**
+> You can. Simply add `if ( is_object( $dbtf ) ) { $dbtf->hide_wp_admin_menu_item(); }` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
+
+
 == Changelog ==
+
+= 2.3.0 =
+* Added HTML rendering class to assist with customising the feed's HTML layout
+* Updated the sample template tag and shortcode files
 
 = 2.2.2 =
 Added template tag and shortcode sample code in the `assets` folder
@@ -121,6 +129,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+Added HTML rendering class to assist with customising the feed's HTML layout, as well as an update of the sample template tag and shortcode files.
 
 = 2.2.2 =
 Added template tag and shortcode sample code in the `assets` folder

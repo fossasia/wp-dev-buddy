@@ -9,12 +9,12 @@ add_shortcode(
 );
 
 
-/* Seeing as all the shortcode does is pass data
-   to the template tag, changes here will be infrequent */
+/* For simplicity, the shortcode simply passes data
+   to the template tag nothing more
 
-/* The most likely case is when new configuration
-   options are made available, at which point you'll
-   need to add them in (should you want them, that is)
+   If a new option is made available in the future
+   you'll need to add it to the $default_atts array
+   and the $feed_config array.
 *********************************************************/
 function register_my_twitter_feed_shortcode( $given_atts ) {
 
@@ -53,8 +53,9 @@ function register_my_twitter_feed_shortcode( $given_atts ) {
 		'is_shortcode_called'       => TRUE
 	);
 
-	return my_twitter_feed_template_tag( $feed_config );
+
+	/* If you've created your own template tag, change the
+	   tag here to match it. Otherwise, leave it as is */
+	return db_twitter_feed( $feed_config );
 
 }
-
-?>
