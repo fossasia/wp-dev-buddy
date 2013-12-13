@@ -90,7 +90,7 @@ Both accept the same arguments/attributes which are all listed and explained bel
 == Changelog ==
 
 = 2.3.2 =
-Bug fix: Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter
+Bug fix: Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter. NOTE: It's likely you will need to re-enter your OAuth Access Token.
 
 = 2.3.1 =
 Bug fix: Rectified errors in the code that caused fatal error
@@ -137,7 +137,7 @@ First release.
 == Upgrade Notice ==
 
 = 2.3.2 =
-Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter
+Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter. NOTE: It's likely you will need to re-enter your OAuth Access Token.
 
 = 2.3.1 =
 Rectified errors in the code that caused fatal error
