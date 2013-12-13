@@ -176,7 +176,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @since 1.0.0
 	*/
 	public function unmask_data( $input ) {
-		if ( preg_match( '|^([0-9]+)-([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token'] ) === 1 ) {
+		if ( preg_match( '|^([0-9]+)([x]+)-([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token'] ) === 1 ) {
 			$input['oauth_access_token'] = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token' );
 		}
 		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token_secret'] ) === 1 ) {

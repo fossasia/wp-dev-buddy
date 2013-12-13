@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
 Tested up to: 3.6
-Stable tag: 2.3.1
+Stable tag: 2.3.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -89,6 +89,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 2.3.2 =
+Bug fix: Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter
+
 = 2.3.1 =
 Bug fix: Rectified errors in the code that caused fatal error
 
@@ -132,6 +135,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 2.3.2 =
+Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter
 
 = 2.3.1 =
 Rectified errors in the code that caused fatal error
