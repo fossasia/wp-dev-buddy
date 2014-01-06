@@ -4,16 +4,18 @@
 Once you've initialised the feed using `new DB_Twitter_Feed` the feed's configuration options
 will be available to you as an array. The defaults of which are shown below:
 
-$the_feed->options['user']                      => 'EjiOsigwe' // String: Any valid Twitter username
-$the_feed->options['count']                     => '10'        // String: Number of tweets to retrieve
-$the_feed->options['exclude_replies']           => 'no'        // String: ("yes" or "no") Only display tweets that aren't replies
-$the_feed->options['default_styling']           => 'no'        // String: ("yes" or "no") Load the bundled stylesheet
-$the_feed->options['cache_hours']               => 0           // Int:    Number of hours to cache the output
-$the_feed->options['clear_cache']               => 'no'        // String: ("yes" or "no") Clear the cache for the set "user"
-$the_feed->options['oauth_access_token']        => NULL        // String: The OAuth Access Token
-$the_feed->options['oauth_access_token_secret'] => NULL        // String: The OAuth Access Token Secret
-$the_feed->options['consumer_key']              => NULL        // String: The Consumer Key
-$the_feed->options['consumer_secret']           => NULL        // String: The Consumer Secret
+$the_feed->options['feed_type']                 => 'user_timeline', // String: ("user_timeine" or "search") The type of feed to render
+$the_feed->options['user']                      => 'EjiOsigwe'      // String: Any valid Twitter username
+$the_feed->options['search_term']               => '#twitter',      // String: Any term to be search on Twitter
+$the_feed->options['count']                     => '10'             // String: Number of tweets to retrieve
+$the_feed->options['exclude_replies']           => 'no'             // String: ("yes" or "no") Only display tweets that aren't replies
+$the_feed->options['default_styling']           => 'no'             // String: ("yes" or "no") Load the bundled stylesheet
+$the_feed->options['cache_hours']               => 0                // Int:    Number of hours to cache the output
+$the_feed->options['clear_cache']               => 'no'             // String: ("yes" or "no") Clear the cache for the set "user"
+$the_feed->options['oauth_access_token']        => NULL             // String: The OAuth Access Token
+$the_feed->options['oauth_access_token_secret'] => NULL             // String: The OAuth Access Token Secret
+$the_feed->options['consumer_key']              => NULL             // String: The Consumer Key
+$the_feed->options['consumer_secret']           => NULL             // String: The Consumer Secret
 
 
 There are also some Twitter specific links available too:
@@ -47,14 +49,16 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 			$the_feed->output .= '<p>Twitter has returned errors</p>';
 
 			// Uncomment the following code to see the details of errors
-			/*$the_feed->output .= '<ul>';
+			/*
+			$the_feed->output .= '<ul>';
 
 			foreach ( $the_feed->errors as $error ) {
 				$the_feed->output .= '<li>&ldquo;'.$error->message.' [error code: '.$error->code.']&rdquo;</li>';
 			}
 
 			$the_feed->output .= '</ul>';
-			$the_feed->output .= '<p>More information on errors <a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank" title="Twitter API Error Codes and Responses">here</a>.</p>';*/
+			$the_feed->output .= '<p>More information on errors <a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank" title="Twitter API Error Codes and Responses">here</a>.</p>';
+			*/
 
 
 		// Then check for an empty timeline
@@ -71,6 +75,8 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 
 			foreach ( $the_feed->feed_data as $tweet ) {
 
+				/* Parse the tweet data and hand the data over to the HTML
+				   class which will write the HTML code for us */
 				$the_feed->html->set( $the_feed->parse_tweet_data( $tweet ) );
 
 
@@ -127,12 +133,13 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 				$the_feed->output .= $the_feed->html->close_tweet();
 				// END Rendering Tweet's HTML
 
-				$the_feed->cache_output( $the_feed->options['cache_hours'] );
-
 			} // END looping through tweet data
 
 			$the_feed->output .= '</div>';
 			// END The Tweet list
+
+			// Cache the output
+			$the_feed->cache_output( $the_feed->options['cache_hours'] );
 
 		}
 

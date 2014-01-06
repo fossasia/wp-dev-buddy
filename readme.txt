@@ -3,12 +3,12 @@ Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
-Tested up to: 3.6
-Stable tag: 2.3.2
+Tested up to: 3.8
+Stable tag: 3.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multiple feeds, custom styling, and aims to make your dev process swift.
+A Twitter (v1.1) feed plugin for the developers that's flexible and supports displaying multiple feeds of both user and search timelines.
 
 == Description ==
 
@@ -16,10 +16,11 @@ A Twitter (v1.1) feed plugin for the developers. It's flexible, supports multipl
 
 **Features**:
 
-* Sensitive OAuth and Consumer data is masked within the WordPress admin to prevent unauthorised access to your app data
+* Support for both User timelines and Search timelines
 * Use either a template tag or a shortcode to render feeds
 * Developers can utilise the plugin system to create their own template tags and shortcodes
 * A default stylesheet is included that you can use either for display or for study when creating your own
+* Sensitive OAuth and Consumer data is masked within the WordPress admin to prevent unauthorised access to your app data
 * All feeds are cached on first render to reduce subsequent load times, along with the option to choose who many hours the cache lasts
 * Embed multiple Twitter timelines on one page
 * Nice and simple settings page, which can also be hidden
@@ -51,8 +52,14 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 **Options set via tempate tag or shortcode take highest priority. If an option is not set in the tag/shortcode this plugin will then check to see if the option is set in the WordPress admin. If no options have been set the plugin will render with the defaults, listed below**
 
+**feed_type (string)**; `user_timeline` or `search` *default*: `user_timeline`
+> The type of feed that is to be rendered. `user_timeline` produces a feed based on what is set for `user`, and `search` produces a feed based on what is set for `search_term`.
+
 **user (string)**; *default*: EjiOsigwe
 > Any valid Twitter username.
+
+**search_term (string)**; *default*: #twitter
+> The term you wish to search Twitter for, with or without a hashtag.
 
 **count (int)**; *default*: 10
 > The number of tweets you want displayed. The maximum Twitter allows per request is at 200 but anything higher than 30 seems to noticeably affect the page load time, especially when loading multiple feeds on the one page.
@@ -88,6 +95,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 
 == Changelog ==
+
+= 3.0.0 =
+Timelines can now be Searches! Check the settings page to test it out. Or, in your template tag/shortcode, add the `feed_type` option with a value of `search` along with the `search_term` option and your search as its value
 
 = 2.3.2 =
 Bug fix: Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter. NOTE: It's likely you will need to re-enter your OAuth Access Token.
@@ -135,6 +145,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.0.0 =
+Plugin now supports searches as timelines. Visit the settings page to change options or the plugin's WordPress page for usage instructions with template tags/shortcodes.
 
 = 2.3.2 =
 Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter. NOTE: It's likely you will need to re-enter your OAuth Access Token.

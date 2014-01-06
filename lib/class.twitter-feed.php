@@ -108,6 +108,8 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		the user because it isn't defined in $options */
 		if ( isset( $feed_config['is_shortcode_called'] ) && $feed_config['is_shortcode_called'] === TRUE ) {
 			$this->is_shortcode_called = TRUE;
+		} else {
+			$this->is_shortcode_called = FALSE;
 		}
 
 
@@ -152,7 +154,6 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			'consumer_key'              => $this->options['consumer_key'],
 			'consumer_secret'           => $this->options['consumer_secret']
 		);
-
 		$this->twitter = new TwitterAPIExchange( $auth_data );
 
 	}
@@ -167,20 +168,38 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	*/
 	public function retrieve_feed_data() {
 
-		// Establish the destination point of the request, check for additional params
-		$request_method = 'GET';
-		$url            = 'https://api.twitter.com/1.1/statuses/user_timeline/'.$this->options['user'].'.json';
-		$get_field      = '?screen_name='.$this->options['user'].'&count='.$this->options['count'];
+		switch ( $this->options['feed_type'] ) {
+			default:
+			case 'user_timeline':
+				$url            = 'https://api.twitter.com/1.1/statuses/user_timeline/'.$this->options['user'].'.json';
+				$get_field      = '?screen_name='.$this->options['user'];
 
-		if ( $this->options['exclude_replies'] === 'yes' ) {
-			$get_field .= '&exclude_replies=true';
+				if ( $this->options['exclude_replies'] === 'yes' ) {
+					$get_field .= '&exclude_replies=true';
+				}
+			break;
+
+			case 'search':
+				$url            = 'https://api.twitter.com/1.1/search/tweets.json';
+				$get_field      = '?q='.urlencode($this->options['search_term']).'&result_type=recent';
+			break;
 		}
 
+		$get_field      .= '&count='.$this->options['count'];
+		$request_method  = 'GET';
+
+		// Send data request
 		$this->feed_data = $this->twitter->setGetfield( $get_field )
 		                                 ->buildOauth( $url, $request_method )
 		                                 ->performRequest();
 
+		// Decode the data
 		$this->feed_data = json_decode( $this->feed_data );
+
+		// Search feed data comes with an extra wrapper object around the tweet items
+		if ( $this->options['feed_type'] === 'search' ) {
+			$this->feed_data = $this->feed_data->statuses;
+		}
 
 	}
 

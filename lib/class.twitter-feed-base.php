@@ -6,7 +6,7 @@
 * This class is used to handle processes that
 * occur outside of the feed rendering process
 *
-* @version 1.0.0
+* @version 1.1.0
 */
 if ( ! class_exists( 'DB_Twitter_Feed_Base' ) ) {
 
@@ -16,6 +16,11 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @var string The name of the plugin to be used within the code
 	*/
 	public $plugin_name = 'db_twitter_feed';
+
+	/**
+	* @var string The short name of the plugin to be used within the code
+	*/
+	public $plugin_short_name = 'dbtf';
 
 	/**
 	* @var object Twitter API object
@@ -41,16 +46,18 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @var array Holds the configuration options and their default and/or user defined values
 	*/
 	protected $defaults = array(
-		'user'                      => 'EjiOsigwe', // String: Any valid Twitter username
-		'count'                     => '10',        // String: Number of tweets to retrieve
-		'exclude_replies'           => 'no',        // String: ("yes" or "no") Only display tweets that aren't replies
-		'default_styling'           => 'no',        // String: ("yes" or "no") Load the bundled stylesheet
-		'cache_hours'               => 0,           // Int:    Number of hours to cache the output
-		'clear_cache'               => 'no',        // String: ("yes" or "no") Clear the cache for the set "user",
-		'oauth_access_token'        => NULL,        // String: The OAuth Access Token
-		'oauth_access_token_secret' => NULL,        // String: The OAuth Access Token Secret
-		'consumer_key'              => NULL,        // String: The Consumer Key
-		'consumer_secret'           => NULL         // String: The Consumer Secret
+		'feed_type'                 => 'user_timeline',  // String: ("user_timeine" or "search") The type of feed to render
+		'user'                      => 'EjiOsigwe',      // String: Any valid Twitter username
+		'search_term'               => '#twitter',       // String: Any term to be search on Twitter
+		'count'                     => '10',             // String: Number of tweets to retrieve
+		'exclude_replies'           => 'no',             // String: ("yes" or "no") Only display tweets that aren't replies
+		'default_styling'           => 'no',             // String: ("yes" or "no") Load the bundled stylesheet
+		'cache_hours'               => 0,                // Int:    Number of hours to cache the output
+		'clear_cache'               => 'no',             // String: ("yes" or "no") Clear the cache for the set "user",
+		'oauth_access_token'        => NULL,             // String: The OAuth Access Token
+		'oauth_access_token_secret' => NULL,             // String: The OAuth Access Token Secret
+		'consumer_key'              => NULL,             // String: The Consumer Key
+		'consumer_secret'           => NULL              // String: The Consumer Secret
 	);
 
 
@@ -130,7 +137,9 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	public function register_twitter_feed_sc( $given_atts ) {
 		$default_atts =
 		array(
+			'feed_type'                 => NULL,
 			'user'                      => NULL,
+			'search_term'               => NULL,
 			'count'                     => NULL,
 			'exclude_replies'           => NULL,
 			'default_styling'           => NULL,
@@ -148,7 +157,9 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 		$feed_config =
 		array(
+			'feed_type'                 => $feed_type,
 			'user'                      => $user,
+			'search_term'               => $search_term,
 			'count'                     => $count,
 			'exclude_replies'           => $exclude_replies,
 			'default_styling'           => $default_styling,
@@ -174,8 +185,11 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @access public
 	* @return array
 	* @since 1.0.0
+	*
+	* @param array $input An associative array of the submitted data
 	*/
 	public function unmask_data( $input ) {
+		// Check to see if any of the authentication data has been edited, grab the stored value if not
 		if ( preg_match( '|^([0-9]+)([x]+)-([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token'] ) === 1 ) {
 			$input['oauth_access_token'] = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token' );
 		}
@@ -188,10 +202,64 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['consumer_secret'] ) === 1 ) {
 			$input['consumer_secret'] = $this->get_db_plugin_option( $this->options_name_main, 'consumer_secret' );
 		}
+
+
 		return $input;
 	}
+
+
+	/**
+	* Method used to parse through data submitted on the feed's settings page within WordPress
+	*
+	* This method will unmask authentication
+	* data if necessary by searching for and
+	* returning the value stored in the
+	* database.
+	*
+	* This method will also check for values
+	* marked as hidden, and move their data
+	* over to their visible counterparts
+	*
+	* @access public
+	* @return array
+	* @since 1.1.0
+	*
+	* @param array $input An associative array of the submitted data
+	*/
+	public function sanitize_settings_submission( $input ) {
+		/* Some settings have matching hidden and visible fields
+		   The hidden ones are the ones we want and this little
+		   bit of script ensures that that's what we get */
+		foreach ( $input as $item => $value ) {
+			if ( preg_match( '|_hid$|', $item ) === 1 ) {
+				$feed_value_name = str_replace('_hid', '', $item);
+
+				unset( $input[ $feed_value_name ] );
+				$input[ $feed_value_name ] = $value;
+
+				unset( $input[ $item ] );
+			}
+		}
+
+
+		// Check to see if any of the authentication data has been edited, grab the stored value if not
+		if ( preg_match( '|^([0-9]+)([x]+)-([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token'] ) === 1 ) {
+			$input['oauth_access_token'] = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token' );
+		}
+		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['oauth_access_token_secret'] ) === 1 ) {
+			$input['oauth_access_token_secret'] = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token_secret' );
+		}
+		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['consumer_key'] ) === 1 ) {
+			$input['consumer_key'] = $this->get_db_plugin_option( $this->options_name_main, 'consumer_key' );
+		}
+		if ( preg_match( '|^([a-zA-Z0-9]{3})([x]+)([a-zA-Z0-9]{3})$|', $input['consumer_secret'] ) === 1 ) {
+			$input['consumer_secret'] = $this->get_db_plugin_option( $this->options_name_main, 'consumer_secret' );
+		}
+
+
+		return $input;
+	}
+
 } // END class
 
 } // END class_exists
-
-?>

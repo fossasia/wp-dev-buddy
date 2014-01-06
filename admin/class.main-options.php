@@ -3,21 +3,29 @@
 /**
 * A class to create the settings page for this plugin within WordPress
 *
-* @version 1.0.0
+* @version 2.0.0
 */
 if ( ! class_exists( 'DB_Twitter_Feed_Main_Options' ) ) {
 
-class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
+class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 
 	/**
 	* @var array Holds important information about sections on the settings page
+	* @since 1.0.0
 	*/
 	private $sections = array();
 
 	/**
 	* @var array Holds important information about individual settings on the settings page
+	* @since 1.0.0
 	*/
 	private $settings = array();
+
+	/**
+	* @var string The prefix used to ensure that the IDs of HTML items are unique to the plugin
+	* @since 2.0.0
+	*/
+	protected $html_item_id_prefix;
 
 
 	/**
@@ -30,11 +38,59 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	public function __construct() {
 		$this->set_main_admin_vars();
 
+		$this->html_item_id_prefix = $this->plugin_short_name.'_';
+
 		$this->set_sections();
 		$this->set_settings();
 
 		add_action( 'admin_menu', array( $this, 'add_menu_item' ) );
 		add_action( 'admin_init', array( $this, 'init_options' ) );
+		add_action( 'admin_head', array( $this, 'set_admin_vars_js' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts_styles' ) );
+	}
+
+
+	/**
+	* 
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function enqueue_scripts_styles( $hook ) {
+		if ( $hook != 'settings_page_db-twitter-feed-settings' ) {
+			return;
+		}
+		wp_enqueue_style( $this->plugin_name.'_admin_styles', DBTF_URL.'/assets/main-admin.css', NULL, '1.0.0', 'all' );
+		wp_enqueue_script( $this->plugin_name.'_admin_functions', DBTF_URL.'/assets/main-admin.js', array( 'jquery-core' ), '1.0.0', true );
+	}
+
+
+	/**
+	* 
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function set_admin_vars_js() {
+		$br      = "\n";
+		$tab     = '	';
+
+		$class_name = strtoupper($this->plugin_short_name);
+
+		$output  = $br.'<script type="text/javascript">'.$br;
+		$output .= $tab.'var '.$class_name.' = '.$class_name.' || {};'.$br;
+
+		$output .= $tab.$class_name.'.pluginName      = \''.$this->plugin_name.'\';'.$br;
+		$output .= $tab.$class_name.'.pluginShortName = \''.$this->plugin_short_name.'\';'.$br;
+
+		$output .= $tab.$class_name.'.optionsNameMain  = \''.$this->options_name_main.'\';'.$br;
+		$output .= $tab.$class_name.'.optionsGroup     = \''.$this->options_group_main.'\';'.$br;
+
+		$output .= '</script>'.$br.$br;
+
+		echo $output;
 	}
 
 
@@ -52,6 +108,12 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'id'       => 'configuration_sec',
 				'title'    => 'Configuration',
 				'callback' => array( $this, 'write_configuration_sec' ),
+				'page'     => $this->page_uri_main
+			),
+			'feed' => array(
+				'id'       => 'feed_sec',
+				'title'    => 'Feed Settings',
+				'callback' => array( $this, 'write_feed_sec' ),
 				'page'     => $this->page_uri_main
 			),
 			'settings' => array(
@@ -106,13 +168,44 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'section'  => 'configuration_sec',
 				'args'     => ''
 			),
+			'feed_type' => array(
+				'id'       => 'feed_type',
+				'title'    => 'Feed Type',
+				'callback' => array( $this, 'write_radio_fields' ),
+				'page'     => $this->page_uri_main,
+				'section'  => 'feed_sec',
+				'args'     => array(
+					'no_label' => TRUE,
+					'options'  => array(
+						'Timeline' => 'user_timeline',
+						'Search'   => 'search'
+					)
+				)
+			),
 			'user' => array(
 				'id'       => 'twitter_username',
 				'title'    => 'Twitter Username',
 				'callback' => array( $this, 'write_twitter_username_field' ),
 				'page'     => $this->page_uri_main,
-				'section'  => 'settings_sec',
-				'args'     => ''
+				'section'  => 'feed_sec',
+				'args'     => array(
+					'attr' => array(
+						'class' => 'input_feed_type'
+					)
+				)
+			),
+			'search_term' => array(
+				'id'       => 'search_term',
+				'title'    => 'Search Term',
+				'callback' => array( $this, 'write_search_term_field' ),
+				'page'     => $this->page_uri_main,
+				'section'  => 'feed_sec',
+				'args'     => array(
+					'desc'   => 'Searches with or without a hashtag are acceptable',
+					'attr'   => array(
+						'class' => 'input_feed_type'
+					)
+				)
 			),
 			'result_count' => array(
 				'id'       => 'result_count',
@@ -120,7 +213,10 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'callback' => array( $this, 'write_numeric_dropdown_field' ),
 				'page'     => $this->page_uri_main,
 				'section'  => 'settings_sec',
-				'args'     => array( 'option' => 'result_count', 'min' => 1, 'max' => 30 )
+				'args'     => array(
+					'min'    => 1,
+					'max'    => 30
+				)
 			),
 			'cache_hours' => array(
 				'id'       => 'cache_hours',
@@ -129,10 +225,9 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'page'     => $this->page_uri_main,
 				'section'  => 'settings_sec',
 				'args'     => array(
-					'option' => 'cache_hours',
 					'min'    => 0,
 					'max'    => 24,
-					'desc'   => '<p class="description">Select 0 if you don\'t wish to cache the feed</p>' )
+					'desc'   => '<p class="description">Select 0 if you don&rsquo;t wish to cache the feed</p>' )
 			),
 			'exclude_replies' => array(
 				'id'       => 'exclude_replies',
@@ -141,8 +236,8 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'page'     => $this->page_uri_main,
 				'section'  => 'settings_sec',
 				'args'     => array(
-					'option' => 'exclude_replies',
-					'desc'   => '<p class="description">Twitter removes replies only after it retrieves the number of tweets you request.<br />Thus if you choose 10, and out of that 10 6 are replies, only 4 tweets will be displayed.</p>' )
+					'desc'   => '<p class="description">Twitter removes replies only after it retrieves the number of tweets you request.<br />Thus if you choose 10, and out of that 10 6 are replies, only 4 tweets will be displayed.</p>'
+				)
 			),
 			'default_styling' => array(
 				'id'       => 'default_styling',
@@ -150,7 +245,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'callback' => array( $this, 'write_checkbox_field' ),
 				'page'     => $this->page_uri_main,
 				'section'  => 'settings_sec',
-				'args'     => array( 'option' => 'default_styling' )
+				'args'     => ''
 			)/*,
 			'' => array(
 				'id'       => '',
@@ -161,6 +256,29 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				'args'     => ''
 			)*/
 		);
+
+		foreach ( $this->settings as $name => $setting ) {
+			$id           = $setting['id'];
+			$title        = $setting['title'];
+			$html_item_id = $this->html_item_id_prefix.$id;
+
+			// Wrap title in label, add it to appropriate $settings property
+			$no_label = ( isset( $setting['args']['no_label'] ) ) ? $setting['args']['no_label'] : FALSE;
+			if ( $no_label !== TRUE ) {
+				$this->settings[ $name ]['title'] = '<label for="'.$html_item_id.'">'.$title.'</label>';
+			}
+
+
+			// Add standard data to the arguments of the setting
+			if ( is_array( $setting['args'] ) ) {
+				$this->settings[ $name ]['args']['option'] = $id;
+			} else {
+				$this->settings[ $name ]['args'] = array( 'option' => $id );
+			}
+
+			$this->settings[ $name ]['args']['html_item_id'] = $html_item_id;
+		}
+
 	}
 
 
@@ -191,7 +309,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function init_options() {
-		register_setting( $this->options_group_main, $this->options_name_main, array( $this, 'unmask_data' ) );
+		register_setting( $this->options_group_main, $this->options_name_main, array( $this, 'sanitize_settings_submission' ) );
 
 		// Loop through the Sections/Settings arrays and add them to WordPress
 		foreach ( $this->sections as $section ) {
@@ -234,7 +352,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 			wp_die( __( 'You do not have sufficient permissions to access this page.' ) );
 		} ?>
 
-		<div class="wrap">
+		<div id="<?php echo $this->plugin_short_name ?>" class="wrap">
 
 			<?php screen_icon() ?>
 			<h2>Twitter Feed Settings</h2>
@@ -251,66 +369,24 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 				submit_button( 'Save Changes' ); ?>
 			</form>
 
-		</div><!--END-wrap-->
+		</div><!--END-<?php echo $this->plugin_short_name ?>-->
 	<?php }
 
 
 	/**
-	* Output a basic checkbox field
+	* Takes a string and returns it with the plugin's shortname prefixed to it
 	*
-	* @access public
-	* @return void
-	* @since 1.0.0
+	* This method should only be used to prefix HTML
+	* id attributes
 	*
-	* @param array $args[option] The name of the option as stored in the database
-	* @param array $args[desc]   The description to accompany this field in the admin
+	* @access protected
+	* @return string
+	* @since 2.0.0
+	*
+	* @param string $item_id The ID of the item to be prefixed
 	*/
-	public function write_checkbox_field( $args ) {
-		$stored_value = $this->get_db_plugin_option( $this->options_name_main, $args['option'] );
-
-		echo '<input type="checkbox" name="'.$this->options_name_main.'['.$args['option'].']" value="yes"';
-		if( $stored_value && $stored_value === 'yes') {
-			echo ' checked="checked"';
-		}
-		echo ' />';
-
-		if ( isset( $args['desc'] ) ) {
-			echo $args['desc'];
-		}
-	}
-
-
-	/**
-	* Output basic dropdown field that supports numbered dropdowns only
-	*
-	* @access public
-	* @return void
-	* @since 1.0.0
-	*
-	* @param array $args[option] The name of the option as stored in the database
-	* @param array $args[min]    The lowest number that the dropdown should reach
-	* @param array $args[max]    The highest number that the dropdown should reach
-	* @param array $args[desc]   The description to accompany this field in the admin
-	*/
-	public function write_numeric_dropdown_field( $args ) {
-		$stored_value = $this->get_db_plugin_option( $this->options_name_main, $args['option'] );
-
-		echo '<select name="'.$this->options_name_main.'['.$args['option'].']">';
-
-		for ( $num = $args['min']; $num <= $args['max']; $num++ ) {
-			echo '<option value="'.$num.'"';
-
-			if ( $stored_value && (int) $stored_value === $num ) {
-				echo ' selected="selected"';
-			}
-
-			echo '>'.$num.'</option>';
-		}
-		echo '</select>';
-
-		if ( isset( $args['desc'] ) ) {
-			echo $args['desc'];
-		}
+	protected function _html_item_id_attr( $item_id ) {
+		return $this->html_item_id_prefix.$item_id;
 	}
 
 
@@ -324,7 +400,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function write_configuration_sec() {
-		echo 'You\'ll need to log into the Twitter Developers site and set up an app. Once you\'ve set one up you will get the data necessary for below. For a step by step, see the <a href="http://wordpress.org/plugins/devbuddy-facebook-feed/installation/" target="_blank">walkthrough</a>.';
+		echo 'You\'ll need to log into the Twitter Developers site and set up an app. Once you\'ve set one up you will get the data necessary for below. For a step by step, see the <a href="http://wordpress.org/plugins/devbuddy-twitter-feed/installation/" target="_blank">walkthrough</a>.';
 	}
 
 
@@ -335,11 +411,11 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @return void
 	* @since 1.0.0
 	*/
-	public function write_consumer_key_field() {
+	public function write_consumer_key_field( $args ) {
 		$consumer_key = $this->get_db_plugin_option( $this->options_name_main, 'consumer_key' );
 		$consumer_key = $this->mask_data( $consumer_key );
 
-		echo '<input type="text" name="'.$this->options_name_main.'[consumer_key]" value="'.$consumer_key.'" style="width:450px;" />';
+		echo '<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[consumer_key]" value="'.$consumer_key.'" style="width:450px;" />';
 	}
 
 
@@ -350,11 +426,11 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @return void
 	* @since 1.0.0
 	*/
-	public function write_consumer_secret_field() {
+	public function write_consumer_secret_field( $args ) {
 		$consumer_secret = $this->get_db_plugin_option( $this->options_name_main, 'consumer_secret' );
 		$consumer_secret = $this->mask_data( $consumer_secret );
 
-		echo '<input type="text" name="'.$this->options_name_main.'[consumer_secret]" value="'.$consumer_secret.'" style="width:450px;" />';
+		echo '<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[consumer_secret]" value="'.$consumer_secret.'" style="width:450px;" />';
 	}
 
 
@@ -365,7 +441,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @return void
 	* @since 1.0.0
 	*/
-	public function write_oauth_access_token_field() {
+	public function write_oauth_access_token_field( $args ) {
 		$oauth_access_token = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token' );
 
 		$oat_arr = explode( '-', $oauth_access_token );
@@ -373,7 +449,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 
 		$oauth_access_token = $this->mask_data( $oauth_access_token, $start );
 
-		echo '<input type="text" name="'.$this->options_name_main.'[oauth_access_token]" value="'.$oauth_access_token.'" style="width:450px;" />';
+		echo '<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[oauth_access_token]" value="'.$oauth_access_token.'" style="width:450px;" />';
 	}
 
 
@@ -384,11 +460,89 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 	* @return void
 	* @since 1.0.0
 	*/
-	public function write_oauth_access_token_secret_field() {
+	public function write_oauth_access_token_secret_field( $args ) {
 		$oauth_access_token_secret = $this->get_db_plugin_option( $this->options_name_main, 'oauth_access_token_secret' );
 		$oauth_access_token_secret = $this->mask_data( $oauth_access_token_secret );
 
-		echo '<input type="text" name="'.$this->options_name_main.'[oauth_access_token_secret]" value="'.$oauth_access_token_secret.'" style="width:450px;" />';
+		echo '<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[oauth_access_token_secret]" value="'.$oauth_access_token_secret.'" style="width:450px;" />';
+	}
+
+
+	/* Write Feed Settings section
+	*******************************************/
+	/**
+	* Output the section as set in the set_sections() method
+	*
+	* @access public
+	* @return void
+	* @since 1.0.0
+	*/
+	function write_feed_sec() {
+		echo '';
+	}
+
+
+	/**
+	* Output the Twitter username setting's field
+	*
+	* @access public
+	* @return void
+	* @since 1.0.0
+	*/
+	function write_twitter_username_field( $args ) {
+		$twitter_username = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
+
+		echo '<strong>twitter.com/<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[twitter_username]"';
+
+		if ( $twitter_username ) {
+			echo ' value="'.$twitter_username.'"';
+		}
+
+		echo ( isset( $args['attr'] ) ) ? $this->write_attr( $args['attr'] ) : '';
+
+		echo ' /></strong>';
+
+		echo '<input type="hidden" name="'.$this->options_name_main.'[twitter_username_hid]"';
+
+		if ( $twitter_username ) {
+			echo ' value="'.$twitter_username.'"';
+		}
+
+		echo ' />';
+
+		echo ( isset( $args['desc'] ) ) ? $this->write_desc( $args['desc'] ) : '';
+	}
+
+
+	/**
+	* Output the Twitter username setting's field
+	*
+	* @access public
+	* @return void
+	* @since 1.0.0
+	*/
+	function write_search_term_field( $args ) {
+		$search_term = $this->get_db_plugin_option( $this->options_name_main, 'search_term' );
+
+		echo '<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[search_term]"';
+
+		if ( $search_term ) {
+			echo ' value="'.$search_term.'"';
+		}
+
+		echo ( isset( $args['attr'] ) ) ? $this->write_attr( $args['attr'] ) : '';
+
+		echo ' />';
+
+		echo '<input type="hidden" name="'.$this->options_name_main.'[search_term_hid]"';
+
+		if ( $search_term ) {
+			echo ' value="'.$search_term.'"';
+		}
+
+		echo ' />';
+
+		echo ( isset( $args['desc'] ) ) ? $this->write_desc( $args['desc'] ) : '';
 	}
 
 
@@ -405,25 +559,6 @@ class DB_Twitter_Feed_Main_Options extends DB_Twitter_Feed_Base {
 		echo '';
 	}
 
-
-	/**
-	* Output the Twitter username setting's field
-	*
-	* @access public
-	* @return void
-	* @since 1.0.0
-	*/
-	function write_twitter_username_field() {
-		$twitter_username = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
-
-		echo '<strong>twitter.com/<input type="text" name="'.$this->options_name_main.'[twitter_username]"';
-
-		if ( $twitter_username ) {
-			echo ' value="'.$twitter_username.'"';
-		}
-
-		echo ' />';
-	}
 }// END class
 
 }// END class_exists

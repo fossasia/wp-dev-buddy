@@ -4,13 +4,13 @@
    to tweak the name of the shortcode to taste
 *********************************************************/
 add_shortcode(
-	'my_twitter_feed_shortcode', // The name of your shortcode
+	'my_twitter_feed_shortcode',         // The name of your shortcode
 	'register_my_twitter_feed_shortcode' // This should match the function name below
 );
 
 
 /* For simplicity, the shortcode simply passes data
-   to the template tag nothing more
+   to the template tag, nothing more
 
    If a new option is made available in the future
    you'll need to add it to the $default_atts array
@@ -19,10 +19,12 @@ add_shortcode(
 function register_my_twitter_feed_shortcode( $given_atts ) {
 
 	/* Default values here will always be NULL, defaults
-	   are set and checked in the plugin itself */
+	   are checked and set in the plugin itself */
 	$default_atts =
 	array(
+		'feed_type'                 => NULL,
 		'user'                      => NULL,
+		'search_term'               => NULL,
 		'count'                     => NULL,
 		'exclude_replies'           => NULL,
 		'default_styling'           => NULL,
@@ -40,7 +42,9 @@ function register_my_twitter_feed_shortcode( $given_atts ) {
 
 	$feed_config =
 	array(
+		'feed_type'                 => $feed_type,
 		'user'                      => $user,
+		'search_term'               => $search_term,
 		'count'                     => $count,
 		'exclude_replies'           => $exclude_replies,
 		'default_styling'           => $default_styling,
