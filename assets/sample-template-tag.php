@@ -20,7 +20,7 @@ $the_feed->options['consumer_secret']           => NULL             // String: T
 
 There are also some Twitter specific links available too:
 $the_feed->tw     = 'https://twitter.com/';
-$the_feed->search = 'https://twitter.com/search?q=%23';
+$the_feed->search = 'https://twitter.com/search?q=';
 $the_feed->intent = 'https://twitter.com/intent/';
 
 Any other useful methods and properties are used and commented on in the template tag below.
@@ -46,7 +46,7 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 		// After attempting data retrieval, check for errors
 		// Feel free to change the error message
 		if ( $the_feed->has_errors() ) {
-			$the_feed->output .= '<p>Twitter has returned errors</p>';
+			$the_feed->output .= '<p>We&rsquo;re unable to show tweets at this time.</p>';
 
 			// Uncomment the following code to see the details of errors
 			/*
@@ -64,7 +64,7 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 		// Then check for an empty timeline
 		// Feel free to change the notification message
 		} elseif( $the_feed->is_empty() ) {
-			$the_feed->output .= '<p>Looks like your timeline is completely empty!<br />Why don&rsquo;t you <a href="'.$this->tw.'" target="_blank">login to Twitter</a> and post a tweet or two.</p>';
+			$the_feed->output .= '<p>Looks like this feed is completely empty! Perhaps try a different user or search term.</p>';
 
 
 		// If all is well we can get to HTML renderin'
@@ -75,7 +75,7 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 
 			foreach ( $the_feed->feed_data as $tweet ) {
 
-				/* Parse the tweet data and hand the data over to the HTML
+				/* Parse the tweet data and hand that data over to the HTML
 				   class which will write the HTML code for us */
 				$the_feed->html->set( $the_feed->parse_tweet_data( $tweet ) );
 

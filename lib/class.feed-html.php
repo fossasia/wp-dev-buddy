@@ -29,19 +29,19 @@ class DB_Twitter_HTML {
 	* @var string Main Twitter URL
 	* @since 1.0.0
 	*/
-	public $tw = 'https://twitter.com/';
+	public $tw;
 
 	/**
 	* @var string Twitter search URL
 	* @since 1.0.0
 	*/
-	public $search = 'https://twitter.com/search?q=%23';
+	public $search;
 
 	/**
 	* @var string Twitter intent URL
 	* @since 1.0.0
 	*/
-	public $intent = 'https://twitter.com/intent/';
+	public $intent;
 
 
 	/**
@@ -54,10 +54,10 @@ class DB_Twitter_HTML {
 	* @param $url_data array The URL that will be necessary within the feed
 	*/
 	public function __construct( $options, $url_data ) {
-		$this->options  = $options;
-		$this->tw       = $url_data['tw'];
-		$this->search   = $url_data['search'];
-		$this->intent   = $url_data['intent'];
+		$this->options = $options;
+		$this->tw      = $url_data['tw'];
+		$this->search  = $url_data['search'];
+		$this->intent  = $url_data['intent'];
 	}
 
 

@@ -36,7 +36,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	* @var string Twitter search URL
 	* @since 1.0.0
 	*/
-	public $search = 'https://twitter.com/search?q=%23';
+	public $search = 'https://twitter.com/search?q=';
 
 	/**
 	* @var string Twitter intent URL
@@ -181,7 +181,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 			case 'search':
 				$url            = 'https://api.twitter.com/1.1/search/tweets.json';
-				$get_field      = '?q='.urlencode($this->options['search_term']).'&result_type=recent';
+				$get_field      = '?q='.urlencode($this->options['search_term']).'&result_type=recent&since_id=1';
 			break;
 		}
 
@@ -197,7 +197,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		$this->feed_data = json_decode( $this->feed_data );
 
 		// Search feed data comes with an extra wrapper object around the tweet items
-		if ( $this->options['feed_type'] === 'search' ) {
+		if ( $this->options['feed_type'] === 'search' && ( isset( $this->feed_data->statuses ) && is_array( $this->feed_data->statuses ) ) ) {
 			$this->feed_data = $this->feed_data->statuses;
 		}
 
@@ -400,24 +400,37 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	*/
 	public function render_feed_html() {
 
-	/*	If Twitter's having none of it (most likely due to
-		bad config) then we get the errors and display them
-		to the user */
+		/* If Twitter's having none of it (most likely due to
+		   bad config) then we get the errors and display them
+		   to the user */
 		if ( $this->has_errors() ) {
 			$this->output .= '<p>Twitter has returned errors:</p>';
 			$this->output .= '<ul>';
 
 			foreach ( $this->errors as $error ) {
-				$this->output .= '<li>&ldquo;'.$error->message.' [error code: '.$error->code.']&rdquo;</li>';
+				$this->output .= '<li>&ldquo;' . $error->message . ' [error code: ' . $error->code . ']&rdquo;</li>';
 			}
 
 			$this->output .= '</ul>';
 			$this->output .= '<p>More information on errors <a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank" title="Twitter API Error Codes and Responses">here</a>.</p>';
 
-	/*	If the timeline of the user requested is empty we
-		let the user know */
-		} elseif( $this->is_empty() ) {
-			$this->output .= '<p>Looks like your timeline is completely empty!<br />Why don&rsquo;t you <a href="'.$this->tw.'" target="_blank">login to Twitter</a> and post a tweet or two.</p>';
+		/* If the result set returned by the request is
+		   empty we let the user know */
+		} elseif ( $this->is_empty() ) {
+			switch ( $this->options['feed_type'] ) {
+				case 'user_timeline':
+					$this->output .= '<p>Looks like your timeline is completely empty!<br />Why don&rsquo;t you <a href="' . $this->tw . '" target="_blank">login to Twitter</a> and post a tweet or two.</p>';
+				break;
+
+				case 'search':
+					$this->output .= '<p>Your search for <strong>' . $this->options['search_term'] . '</strong> doesn&rsquo;t have any recent results. <a href="' . $this->search . urlencode($this->options['search_term']) . '" title="Search Twitter for ' . $this->options['search_term'] . '" target="_blank">Perform a full search on Twitter</a> to see all results.</p>';
+				break;
+
+				default:
+					$this->output .= '<p>There are no tweets to display.</p>';
+				break;
+			}
+			
 
 		// If all is well, we get on with it
 		} else {
@@ -493,31 +506,37 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	}
 
 
-	/*	The following "linkify" functions look for
-		specific components within the tweet text
-		and converts them to links using the data
-		provided by Twitter */
+	/* The following "linkify" functions look for
+	   specific components within the tweet text
+	   and converts them to links using the data
+	   provided by Twitter */
 
-	/*	@Mouthful
-		Each function accepts an array holding arrays.
-		Each array held within the array represents
-		an instance of a linkable item within that
-		particular tweet and has named keys
-		representing useful data to do with that
-		instance of the linkable item */
-
-	/*	It's slightly different for the hashtags but
-		I can't remember why */
+	/* @Mouthful
+	   Each function accepts an array holding arrays.
+	   Each array held within the array represents
+	   an instance of a linkable item within that
+	   particular tweet and has named keys
+	   representing useful data to do with that
+	   instance of the linkable item */
 	/************************************************/
-	public function linkify_hashtags( $tweet, $hashtags ) {
 
-		$search = 'https://twitter.com/search?q=%23';
+	/**
+	* Transform hastags within a tweet into active links
+	*
+	* @access public
+	* @return string The tweet with the hashtags transformed into links
+	* @since 1.0.0
+	*
+	* @param $tweet    string The existing tweet text
+	* @param $hashtags array  An array containing the hashtag data returned by twitter in its entities values
+	*/
+	public function linkify_hashtags( $tweet, $hashtags ) {
 
 		if ( $hashtags !== NULL ) {
 			foreach ( $hashtags as $hashtag ) {
 				$tweet = str_replace(
 					'#'.$hashtag,
-					'<a href="'.$search.$hashtag.'" target="_blank" title="Search Twitter for \''.$hashtag.'\' ">#'.$hashtag.'</a>',
+					'<a href="'.$this->search.'%23'.$hashtag.'" target="_blank" title="Search Twitter for \''.$hashtag.'\' ">#'.$hashtag.'</a>',
 					$tweet
 				);
 			}
@@ -531,9 +550,17 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 	}
 
+	/**
+	* Transform mentions within a tweet into active links
+	*
+	* @access public
+	* @return string The tweet with the mentions transformed into links
+	* @since 1.0.0
+	*
+	* @param $tweet    string The existing tweet text
+	* @param $mentions array  An array containing the mention data returned by twitter in its entities values
+	*/
 	public function linkify_mentions( $tweet, $mentions ) {
-
-		$twitter = 'https://twitter.com/';
 
 		if ( is_array( $mentions ) && count( $mentions ) !== 0 ) {
 			foreach ( $mentions as $mention ) {
@@ -542,7 +569,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 				for ( $i = 0; $i < $count; $i++ ) {
 					$tweet = preg_replace(
 						'|@'.$mentions[ $i ]['screen_name'].'|',
-						'<a href="'.$twitter.$mentions[ $i ]['screen_name'].'" target="_blank" title="'.$mentions[ $i ]['name'].'">@'.$mentions[ $i ]['screen_name'].'</a>',
+						'<a href="'.$this->tw.$mentions[ $i ]['screen_name'].'" target="_blank" title="'.$mentions[ $i ]['name'].'">@'.$mentions[ $i ]['screen_name'].'</a>',
 						$tweet
 					);
 				}
@@ -557,6 +584,16 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 	}
 
+	/**
+	* Transform URLs within a tweet into active links
+	*
+	* @access public
+	* @return string The tweet with the URLs transformed into active links
+	* @since 1.0.0
+	*
+	* @param $tweet string The existing tweet text
+	* @param $urls  array  An array containing the URL data returned by twitter in its entities values
+	*/
 	public function linkify_links( $tweet, $urls ) {
 
 		if ( is_array( $urls ) && count( $urls ) !== 0 ) {
@@ -581,6 +618,16 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 	}
 
+	/**
+	* Transform media data within a tweet into active links
+	*
+	* @access public
+	* @return string The tweet with any media transformed into active links
+	* @since 1.0.0
+	*
+	* @param $tweet string The existing tweet text
+	* @param $media array  An array containing the media data returned by twitter in its entities values
+	*/
 	public function linkify_media( $tweet, $media ) {
 
 		if ( is_array( $media ) && count( $media ) !== 0 ) {

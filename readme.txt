@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
 Tested up to: 3.8
-Stable tag: 3.0.0
+Stable tag: 3.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -93,8 +93,16 @@ Both accept the same arguments/attributes which are all listed and explained bel
 **Can I hide this plugin's option page from the WordPress admin menu?**
 > You can. Simply add `if ( is_object( $dbtf ) ) { $dbtf->hide_wp_admin_menu_item(); }` to your theme's functions.php file. If you've moved the plugin folder into your theme and included it, you'll need to ensure that this line comes **after** the include for it to work.
 
+**Why am I not getting any results when I render a search feed?**
+> According to Twitter, using the API to perform a search has a recency restriction of one week. This means that if your search term hasn't been tweeted in the past week Twitter will return no results, thus resulting in an empty feed.
+
 
 == Changelog ==
+
+= 3.0.1 =
+**Please note that Twitter has a recency restriction of one week on searches. If a search term hasn't been tweeted in the past week Twitter will return no results.**
+* Implemented code amendment that ensures that the plugin provides the user with useful feedback if a search term returns no tweets
+* General code housekeeping
 
 = 3.0.0 =
 Timelines can now be Searches! Check the settings page to test it out. Or, in your template tag/shortcode, add the `feed_type` option with a value of `search` along with the `search_term` option and your search as its value
@@ -145,6 +153,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.0.1 =
+Code amendment that ensures that the plugin provides the user with useful feedback if a search term returns no tweets and some other general code maintenance work.
 
 = 3.0.0 =
 Plugin now supports searches as timelines. Visit the settings page to change options or the plugin's WordPress page for usage instructions with template tags/shortcodes.
