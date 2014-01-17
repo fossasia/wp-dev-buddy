@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
 Tested up to: 3.8
-Stable tag: 3.0.1
+Stable tag: 3.0.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 3.0.2 =
+Bug fix: Unchanged OAuth Access Token should no longer become incorrect when changes are saved via the admin
+
 = 3.0.1 =
 **Please note that Twitter has a recency restriction of one week on searches. If a search term hasn't been tweeted in the past week Twitter will return no results.**
 * Implemented code amendment that ensures that the plugin provides the user with useful feedback if a search term returns no tweets
@@ -153,6 +156,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.0.2 =
+Bug fix: Unchanged OAuth Access Token should no longer become incorrect when changes are saved via the admin
 
 = 3.0.1 =
 Code amendment that ensures that the plugin provides the user with useful feedback if a search term returns no tweets and some other general code maintenance work.
