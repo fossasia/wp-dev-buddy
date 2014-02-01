@@ -6,7 +6,7 @@
 * This class is used to handle processes that
 * occur outside of the feed rendering process
 *
-* @version 1.1.0
+* @version 1.2.0
 */
 if ( ! class_exists( 'DB_Twitter_Feed_Base' ) ) {
 
@@ -46,7 +46,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @var array Holds the configuration options and their default and/or user defined values
 	*/
 	protected $defaults = array(
-		'feed_type'                 => 'user_timeline',  // String: ("user_timeine" or "search") The type of feed to render
+		'feed_type'                 => 'user_timeline',  // String: ("user_timeline" or "search") The type of feed to render
 		'user'                      => 'EjiOsigwe',      // String: Any valid Twitter username
 		'search_term'               => '#twitter',       // String: Any term to be search on Twitter
 		'count'                     => '10',             // String: Number of tweets to retrieve
@@ -258,6 +258,51 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 
 		return $input;
+	}
+
+
+	/**
+	* Cache whatever is in the DevBuddy_Feed_Plugin::$output property
+	*
+	* This method also sets the DevBuddy_Feed_Plugin::$is_cached property
+	* to TRUE once the cache is set.
+	*
+	* @access public
+	* @return void
+	* @since 1.2.0
+	*
+	* @param int $hours The number of hours the output should be cached for
+	*/
+	public function cache_output( $hours = 0 ) {
+		if ( (int) $hours !== 0 ) {
+			/* The cache for the feed instance is set using the
+			   feed term as its ID. Here we grab the ID */
+			switch ( $this->options['feed_type'] ) {
+				case 'user_timeline':
+					$id = $this->options['user'];
+				break;
+
+				case 'search':
+					$id = $this->options['search_term'];
+				break;
+
+				default:
+					$id = FALSE;
+				break;
+			}
+
+			if ( $id ) {
+				// Create the cache
+				set_transient( $this->plugin_name . '_output_' . $id, $this->output, 3600*$hours );
+
+				// Check that the cache creation was successful
+				$cache_successful = get_transient( $this->plugin_name . '_output_' . $this->options['user'] );
+
+				if ( $cache_successful ) {
+					$this->is_cached = TRUE;
+				}
+			}
+		}
 	}
 
 } // END class
