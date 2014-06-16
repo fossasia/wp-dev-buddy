@@ -7,7 +7,7 @@
 * and methods that will be common across feed
 * plugins.
 *
-* @version 1.0.2
+* @version 1.1.0
 */
 if ( ! class_exists( 'DevBuddy_Feed_Plugin' ) ) {
 
@@ -26,7 +26,7 @@ class DevBuddy_Feed_Plugin {
 	/**
 	* @var array Holds the configuration options once the feed class has been instantiated
 	*/
-	public $options = array();
+	public $options;
 
 	/**
 	* @var string The output of the entire feed will be stored here
@@ -72,7 +72,7 @@ class DevBuddy_Feed_Plugin {
 	* @return mixed The value of the option you're looking for or FALSE if no value exists
 	*
 	* @param string $option_entry The option name that WP recognises as an entry
-	* @param string $option_name  The name of the specific option you want the value of
+	* @param string $option_name  The name of the specific plugin option you want the value of
 	*
 	* @since 1.0.1
 	*/
@@ -94,12 +94,53 @@ class DevBuddy_Feed_Plugin {
 	* @return mixed The value of the option you're looking for or FALSE if no value exists
 	*
 	* @param string $option_entry The option name that WP recognises as an entry
-	* @param string $option_name  The name of the specific option you want the value of
+	* @param string $option_name  The name of the specific plugin option you want the value of
 	*
 	* @since 1.0.0
 	*/
 	public function get_db_plugin_option( $option_entry, $option_name ) {
 		return $this->get_option( $option_entry, $option_name );
+	}
+
+
+	/**
+	* Update a specific plugin option
+	*
+	* @access protected
+	* @return bool An indication of whether or not the update was successful
+	*
+	* @param string $option_entry The option name that WP recognises as an entry
+	* @param string $option_name  The name of the specific plugin option you want to update
+	* @param mixed  $new_value    The value with which to update the option
+	*
+	* @since 1.1.0
+	*/
+	protected function update_option( $option_entry, $option_name, $new_value ) {
+		$options = get_option( $option_entry );
+		$options[ $option_name ] = $new_value;
+
+		if ( update_option( $option_entry, $options ) ) {
+			return TRUE;
+		} else {
+			return FALSE;
+		}
+	}
+
+
+	/**
+	* Update a specific plugin option
+	*
+	* @access protected
+	* @return bool An indication of whether or not the update was successful
+	*
+	* @param string $option_entry The option name that WP recognises as an entry
+	* @param string $option_name  The name of the specific plugin option you want to update
+	* @param mixed  $new_value    The value with which to update the option
+	*
+	* @since 1.1.0
+	*/
+	protected function update_db_plugin_option( $option_entry, $option_name, $new_value ) {
+		return $this->update_option( $option_entry, $option_name, $new_value );
 	}
 
 
@@ -116,10 +157,10 @@ class DevBuddy_Feed_Plugin {
 
 
 	/**
-	* Increase the feed item count by one
+	* Return the current item count of the current feed
 	*
 	* @access public
-	* @return void
+	* @return int
 	* @since 1.0.1
 	*/
 	public function get_item_count() {
@@ -141,9 +182,9 @@ class DevBuddy_Feed_Plugin {
 	*/
 	public function cache_output( $hours = 0 ) {
 		if ( (int) $hours !== 0 ) {
-			set_transient( $this->plugin_name.'_output_'.$this->options['user'], $this->output, 3600*$hours );
+			set_transient( $this->plugin_name . '_output_' . $this->options['user'], $this->output, 3600 * $hours );
 
-			$cache_successful = get_transient( $this->plugin_name.'_output_'.$this->options['user'] );
+			$cache_successful = get_transient( $this->plugin_name . '_output_' . $this->options['user'] );
 
 			if ( $cache_successful ) {
 				$this->is_cached = TRUE;
@@ -167,9 +208,9 @@ class DevBuddy_Feed_Plugin {
 	* @param string $user The username/ID of the feed owner
 	*/
 	public function clear_cache_output( $user ) {
-		delete_transient( $this->plugin_name.'_output_'.$user );
+		delete_transient( $this->plugin_name . '_output_' . $user );
 
-		$clear_cache_successful = ( get_transient( $this->plugin_name.'_output_'.$user ) ) ? FALSE : TRUE;
+		$clear_cache_successful = ( get_transient( $this->plugin_name . '_output_' . $user ) ) ? FALSE : TRUE;
 
 		if ( $clear_cache_successful ) {
 			$this->is_cached = FALSE;
@@ -420,8 +461,88 @@ class DevBuddy_Feed_Plugin {
 		add_action( 'admin_menu', array( $this, 'hide_admin_page' ), 999 );
 	}
 
+
+	/**
+	 * Output the $output to the screen as and when this method
+	 * is called. Use DevBuddy_Feed_Plugin::kill() instead of
+	 * this if you want to end script execution immediately.
+	 *
+	 * @access public
+	 * @return void
+	 * @since 1.1.0
+	 * 
+	 * @param mixed $output The data you wish to output to screen
+	 * @param bool  $log    Send the $output to the configured error log
+	 */
+	public function debug( $output, $log = FALSE ) {
+		// If $output is an array or object, convert it to a string
+		if ( is_array( $output ) || is_object( $output ) ) {
+			$output = '<pre>' . print_r( $output, TRUE ) . '</pre>';
+		}
+
+		// If $output is boolean, convert it to a string
+		if ( is_bool( $output ) ) {
+			$output  = '(bool) ';
+			$output .= ( $output ) ? 'true' : 'false';
+		}
+
+		// If $output is NULL, convert it to a string
+		if ( $output === NULL ) {
+			$output = 'NULL';
+		}
+
+		echo $output;
+	}
+
+
+	/**
+	 * Kills all script execution at the point that this method
+	 * is called and sends $output to the error log. By setting
+	 * the $print parameter to TRUE, the output can be sent to
+	 * the screen too.
+	 *
+	 * @access protected
+	 * @return void
+	 * @since  1.1.0
+	 * 
+	 * @param  mixed   $output   The text that will be output in the error log, and on screen is $print is TRUE
+	 * @param  boolean $print    Set to TRUE to print the output to screen
+	 * @param  boolean $pre_wrap Set to TRUE to wrap the output in <pre> tags. Useful when outputting arrays and objects
+	 */
+	protected function kill( $output, $print = TRUE ) {
+		// If $output is an array or object, convert it to a string
+		if ( is_array( $output ) || is_object( $output ) ) {
+			$output = '<pre>' . print_r( $output, TRUE ) . '</pre>';
+		}
+
+		// If $output is boolean, convert it to a string
+		if ( is_bool( $output ) ) {
+			$output  = '(bool) ';
+			$output .= ( $output ) ? 'true' : 'false';
+		}
+
+		// If $output is NULL, convert it to a string
+		if ( $output === NULL ) {
+			$output = 'NULL';
+		}
+
+		// Log the output
+		error_log( $output );
+
+		// Print $output if $print is TRUE
+		if ( $print === TRUE && WP_DEBUG === TRUE ) {
+			echo $output;
+		}
+
+		// $print param should be a boolean value
+		if ( ! is_bool( $print ) ) {
+			error_log( __METHOD__ . ' expects $print parameter to be boolean, ' . gettype( $print ) . ' given' );
+		}
+
+		// Kill
+		   die;
+	}
+
 } // END class
 
 } // END class_exists
-
-?>

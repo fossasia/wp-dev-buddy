@@ -8,7 +8,7 @@
 * array as the parameter to properly initialise the
 * object instance.
 *
-* @version 1.0.3
+* @version 1.1.0
 */
 if ( ! class_exists( 'DB_Twitter_Feed' ) ) {
 
@@ -50,6 +50,27 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	*/
 	public $errors;
 
+	/**
+	 * @var string The term the feed rendered is based on
+	 * @since  1.1.0
+	 */
+	protected $feed_term;
+
+
+	/**
+	* Constructor.
+	*
+	* @access public
+	* @return void
+	* @since 1.0.0
+	*/
+	public function __construct( $feed_config ) {
+
+		$this->set_main_admin_vars();
+		$this->initialise_the_feed( $feed_config );
+
+	}
+
 
 	/**
 	* Configure data necessary for rendering the feed
@@ -59,17 +80,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	* for a cached version of the feed under the given
 	* user, initialise a Twitter API object.
 	*
-	* @access public
+	* @access private
 	* @return void
-	* @since 1.0.0
-	*/
-	public function __construct( $feed_config ) {
+	* @since 1.0.4
+	 */
+	private function initialise_the_feed( $feed_config ) {
 
-		$this->set_main_admin_vars();
-
-	/*	Populate the $options property with the config options submitted
-		by the user. Should any of the options not be set, fall back on
-		stored values, then defaults */
+		/* Populate the $options property with the config options submitted
+		   by the user. Should any of the options not be set, fall back on
+		   stored values, then defaults */
 		if ( ! is_array( $feed_config ) ) {
 			$feed_config = array();
 		}
@@ -99,13 +118,13 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		}
 
 
-	/*	The shortcode delivered feed config brings with it
-		the 'is_shortcode_called' option */
+		/* The shortcode delivered feed config brings with it
+		   the 'is_shortcode_called' option */
 
-	/*	As the above check is based on the items in the
-		$options property array, this option is ignored
-		by the check even if defined in the config by
-		the user because it isn't defined in $options */
+		/* As the above check is based on the items in the
+		   $options property array, this option is ignored
+		   by the check even if defined in the config by
+		   the user because it isn't defined in $options */
 		if ( isset( $feed_config['is_shortcode_called'] ) && $feed_config['is_shortcode_called'] === TRUE ) {
 			$this->is_shortcode_called = TRUE;
 		} else {
@@ -113,19 +132,39 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		}
 
 
-	/*	Check to see if there is a cache available with the
-		username provided. Move into the output if so */
+		/* Grab the term that is to be used to render the feed
+		   and place it under once common variable. Saves one
+		   having to check through each term type (user, search,
+		   etc) to find the term in use */
+		switch ( $this->options['feed_type'] ) {
+			case 'user_timeline':
+				$this->feed_term = $this->options['user'];
+				break;
 
-	/*	However, we don't do this without first checking
-		whether or not a clearance of the cache has been
-		requested */
-		if ( $this->options['clear_cache'] === 'yes' ) {
-			$this->clear_cache_output( $this->options['user'] );
+			case 'search':
+				$this->feed_term = $this->options['search_term'];
+				break;
+
+			default:
+				$this->feed_term = NULL;
+				break;
 		}
 
-		$this->output = get_transient( $this->plugin_name.'_output_'.$this->options['user'] );
+
+		/* Check to see if there is a cache available with the
+		   username provided. Move into the output if so */
+
+		/* However, we don't do this without first checking
+		   whether or not a clearance of the cache has been
+		   requested */
+		if ( $this->options['clear_cache'] === 'yes' || (int) $this->options['cache_hours'] === 0 ) {
+			$this->clear_cache_output( $this->feed_term );
+		}
+
+		$this->output = get_transient( $this->plugin_name . '_output_' . $this->feed_term );
 		if ( $this->output !== FALSE ) {
 			$this->is_cached = TRUE;
+			$this->output = json_decode($this->output);
 
 		} else {
 			$this->is_cached = FALSE;
@@ -201,6 +240,18 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$this->feed_data = $this->feed_data->statuses;
 		}
 
+	}
+
+
+	/**
+	 * Return the feed term for the current feed rendered
+	 *
+	 * @access public
+	 * @return mixed Returns the term as a string, or FALSE if none has yet been set
+	 * @since  1.1.0
+	 */
+	public function get_feed_term() {
+		return $this->feed_term;
 	}
 
 
@@ -367,7 +418,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	/************************************************/
 		if ( $tweet['is_retweet'] ) {
 			// Shave unnecessary "RT [@screen_name]: " from the tweet text
-			$char_count  = strlen( '@'.$tweet['user_screen_name'] ) + 5;
+			$char_count  = strlen( '@' . $tweet['user_screen_name'] ) + 5;
 			$shave_point = ( 0 - strlen( $tweet['text'] ) ) + $char_count;
 			$tweet['text']  = substr( $tweet['text'], $shave_point );
 		}
@@ -399,6 +450,8 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	* @since 1.0.0
 	*/
 	public function render_feed_html() {
+		// The holding element
+		$this->output .= '<div class="tweets">';
 
 		/* If Twitter's having none of it (most likely due to
 		   bad config) then we get the errors and display them
@@ -430,19 +483,16 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 					$this->output .= '<p>There are no tweets to display.</p>';
 				break;
 			}
-			
 
 		// If all is well, we get on with it
 		} else {
-			$this->output .= '<div class="tweets">';
-
 			foreach ( $this->feed_data as $tweet ) {
 				$this->render_tweet_html( $tweet );
 			}
 
-			$this->output .= '</div>';
-
 		}
+
+		$this->output .= '</div>';
 
 	}
 

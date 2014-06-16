@@ -26,3 +26,13 @@
 #dbtf .dbtf_radio_item label {
 	margin-right:5px;
 }
+
+#dbtf .dbtf_cache_management_section p.submit {
+	display:inline;
+	margin-left:5px;
+}
+
+#dbtf .settings_item {
+	padding-top:15px;
+	padding-bottom:15px;
+}
