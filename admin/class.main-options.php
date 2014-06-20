@@ -51,51 +51,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 
 
 	/**
-	* 
-	*
-	* @access public
-	* @return void
-	* @since 2.0.0
-	*/
-	public function enqueue_scripts_styles( $hook ) {
-		if ( $hook != 'settings_page_db-twitter-feed-settings' ) {
-			return;
-		}
-		wp_enqueue_style( $this->plugin_name.'_admin_styles', DBTF_URL.'/assets/main-admin.css', NULL, '1.0.0', 'all' );
-		wp_enqueue_script( $this->plugin_name.'_admin_functions', DBTF_URL.'/assets/main-admin.js', array( 'jquery-core' ), '1.0.0', true );
-	}
-
-
-	/**
-	* 
-	*
-	* @access public
-	* @return void
-	* @since 2.0.0
-	*/
-	public function set_admin_vars_js() {
-		$br      = "\n";
-		$tab     = '	';
-
-		$class_name = strtoupper($this->plugin_short_name);
-
-		$output  = $br.'<script type="text/javascript">'.$br;
-		$output .= $tab.'var '.$class_name.' = '.$class_name.' || {};'.$br;
-
-		$output .= $tab.$class_name.'.pluginName      = \''.$this->plugin_name.'\';'.$br;
-		$output .= $tab.$class_name.'.pluginShortName = \''.$this->plugin_short_name.'\';'.$br;
-
-		$output .= $tab.$class_name.'.optionsNameMain  = \''.$this->options_name_main.'\';'.$br;
-		$output .= $tab.$class_name.'.optionsGroup     = \''.$this->options_group_main.'\';'.$br;
-
-		$output .= '</script>'.$br.$br;
-
-		echo $output;
-	}
-
-
-	/**
-	* Establish the details of the sections to be used on this settings page
+	* Establish the details of the sections to be rendered by WP on this settings page
 	*
 	* @access private
 	* @return void
@@ -104,6 +60,12 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 	private function set_sections() {
 		$this->sections =
 		array(
+			'cache' => array(
+				'id'       => 'cache_sec',
+				'title'    => 'Cache Management',
+				'callback' => array( $this, 'write_cache_sec' ),
+				'page'     => $this->page_uri_main
+			),
 			'config' => array(
 				'id'       => 'configuration_sec',
 				'title'    => 'Configuration',
@@ -127,7 +89,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 
 
 	/**
-	* Establish the details of the settings to be used on this settings page
+	* Establish the details of the settings to be rendered by WP on this settings page
 	*
 	* @access private
 	* @return void
@@ -283,6 +245,50 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 
 
 	/**
+	* Load JavaScripts and styles necessary for the page
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function enqueue_scripts_styles( $hook ) {
+		if ( $hook != 'settings_page_db-twitter-feed-settings' ) {
+			return;
+		}
+		wp_enqueue_style( $this->plugin_name.'_admin_styles', DBTF_URL.'/assets/main-admin.css', NULL, '1.0.1', 'all' );
+		wp_enqueue_script( $this->plugin_name.'_admin_functions', DBTF_URL.'/assets/main-admin.js', array( 'jquery-core' ), '1.0.0', true );
+	}
+
+
+	/**
+	* Create global JavaScript object that will hold certain plugin information
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function set_admin_vars_js() {
+		$br      = "\n";
+		$tab     = '	';
+
+		$class_name = strtoupper($this->plugin_short_name);
+
+		$output  = $br.'<script type="text/javascript">'.$br;
+		$output .= $tab.'var '.$class_name.' = '.$class_name.' || {};'.$br;
+
+		$output .= $tab.$class_name.'.pluginName      = \''.$this->plugin_name.'\';'.$br;
+		$output .= $tab.$class_name.'.pluginShortName = \''.$this->plugin_short_name.'\';'.$br;
+
+		$output .= $tab.$class_name.'.optionsNameMain  = \''.$this->options_name_main.'\';'.$br;
+		$output .= $tab.$class_name.'.optionsGroup     = \''.$this->options_group_main.'\';'.$br;
+
+		$output .= '</script>'.$br.$br;
+
+		echo $output;
+	}
+
+
+	/**
 	* Add the item to the WordPress admin menu and call the function that renders the markup
 	*
 	* @access public
@@ -359,14 +365,11 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 
 			<form id="<?php echo $this->plugin_name ?>_settings" action="options.php" method="post">
 				<?php
-				if ( isset( $_GET['settings-updated'] ) && (bool) $_GET['settings-updated'] === TRUE ) {
-					$user = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
-					$this->clear_cache_output( $user );
-				}
-
 				settings_fields( $this->options_group_main );
 				do_settings_sections( $this->page_uri_main );
-				submit_button( 'Save Changes' ); ?>
+
+				submit_button( 'Save Changes' )
+				?>
 			</form>
 
 		</div><!--END-<?php echo $this->plugin_short_name ?>-->
@@ -387,6 +390,57 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 	*/
 	protected function _html_item_id_attr( $item_id ) {
 		return $this->html_item_id_prefix.$item_id;
+	}
+
+
+	/* Write Cache Management section
+	*******************************************/
+	/**
+	* Output the Cache management section and its fields
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function write_cache_sec() {
+		echo 'Select a cache segment to clear.';
+		echo '<div class="' . $this->plugin_short_name . '_cache_management_section settings_item">';
+
+		echo '<select name="' . $this->options_name_main . '[cache_segment]">
+				<option value="0">--</option>
+				<option value="user_timeline">User timelines</option>
+				<option value="search">Searches</option>
+				<option value="all">All</option>
+			</select>';
+
+		echo '<input type="hidden" id="' . $this->plugin_short_name . '_cache_clear_flag" name="' . $this->options_name_main . '[cache_clear_flag]" value="0" />';
+
+		echo get_submit_button( 'Clear Cache', 'secondary', $this->plugin_short_name . '_batch_clear_cache' );
+		echo '</div>';
+	}
+
+
+	/**
+	* Output batch clear cache field
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function write_cache_segment_field() {
+		echo '';
+	}
+
+
+	/**
+	* Output batch clear clear flag field
+	*
+	* @access public
+	* @return void
+	* @since 2.0.0
+	*/
+	public function write_cache_clear_flag() {
+		echo '';
 	}
 
 
@@ -477,7 +531,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 	* @return void
 	* @since 1.0.0
 	*/
-	function write_feed_sec() {
+	public function write_feed_sec() {
 		echo '';
 	}
 
@@ -489,7 +543,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 	* @return void
 	* @since 1.0.0
 	*/
-	function write_twitter_username_field( $args ) {
+	public function write_twitter_username_field( $args ) {
 		$twitter_username = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
 
 		echo '<strong>twitter.com/<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[twitter_username]"';
@@ -521,7 +575,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 	* @return void
 	* @since 1.0.0
 	*/
-	function write_search_term_field( $args ) {
+	public function write_search_term_field( $args ) {
 		$search_term = $this->get_db_plugin_option( $this->options_name_main, 'search_term' );
 
 		echo '<input type="text" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'[search_term]"';
@@ -555,7 +609,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 	* @return void
 	* @since 1.0.0
 	*/
-	function write_settings_sec() {
+	public function write_settings_sec() {
 		echo '';
 	}
 

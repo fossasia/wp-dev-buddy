@@ -44,4 +44,21 @@
 
 		activeField.removeAttr( 'disabled' );
 	}
+
+
+	/* Provide the plugin script with a means of discerning
+	   between a Save submit and a Clear Cache submit by
+	   setting a cache clear flag value */
+	$( 'input#dbtf_batch_clear_cache' ).on( 'click', function(e) {
+		$( '#' + sn + '_cache_clear_flag' ).val( 1 );
+	} );
+
+
+	/* Hitting the back button in certain browsers means that
+	   values are not reset. When the "Save" submit button is
+	   hit, we need to set the cache clear flag to a false
+	   value */
+	$( 'input#submit' ).on( 'click', function() {
+		$( '#' + sn + '_cache_clear_flag' ).val( 0 );
+	} );
 })(jQuery);
