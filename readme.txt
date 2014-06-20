@@ -102,7 +102,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 = 3.1.0 =
 * Cache management facility added to settings page
 * Setting `cache_hours` to `0` will clear the cache if one exists
+* Smilies no longer break the feed
 * Plugin now utilises WP's error logging and other custom debugging facilities
+* Implemented partial API functionality, further work and documentation to come
 * General code improvements
 
 = 3.0.2 =
@@ -162,6 +164,14 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.1.0 =
+* Cache management facility added to settings page
+* Setting `cache_hours` to `0` will clear the cache if one exists
+* Smilies no longer break the feed
+* Plugin now utilises WP's error logging and other custom debugging facilities
+* Implemented partial API functionality, further work and documentation to come
+* General code improvements
 
 = 3.0.2 =
 Bug fix: Unchanged OAuth Access Token should no longer become incorrect when changes are saved via the admin
