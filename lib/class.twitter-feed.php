@@ -164,7 +164,18 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		$this->output = get_transient( $this->plugin_name . '_output_' . $this->feed_term );
 		if ( $this->output !== FALSE ) {
 			$this->is_cached = TRUE;
-			$this->output = json_decode($this->output);
+
+			/* Versions of the plugin prior to 3.1.0 didn't JSON encode
+			   the output for caching so anyone updating will suffer
+			   broken feeds when the plugin attempts to decode a cached
+			   output that isn't JSON encoded. Here we place the JSON
+			   decoded output in a placeholder */
+			$this->output_ph = json_decode($this->output);
+
+			// If the cached version is not legacy, we proceed as normal
+			if ( $this->output_ph !== NULL ) {
+				$this->output = $this->output_ph;
+			}
 
 		} else {
 			$this->is_cached = FALSE;

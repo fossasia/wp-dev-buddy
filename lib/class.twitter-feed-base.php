@@ -244,7 +244,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 					$tone = 'error';
 					break;
 
-				case 'cache_cleared':
+				case ucfirst($input['cache_segment']) . '_cache_cleared':
 					$tone = 'updated';
 					break;
 			}
@@ -531,6 +531,12 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	protected function clear_feed_term_cache_item( $term, $segment = NULL ) {
 		$ftc = get_transient( $this->plugin_name . '_ftc' );
 
+		// Check that a feed term cache is even available
+		if ( $ftc === FALSE ) {
+			error_log('A feed term cache has not recently been created, nothing to clear');
+			return FALSE;
+		}
+
 		// Return false if given segment doesn't exist
 		if ( $segment !== NULL && ! array_key_exists($segment, $ftc) ) {
 			error_log('Given segment [' . $segment . '] does not exist in feed term cache');
@@ -587,7 +593,6 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 		// Check that a cache segment has been passed
 		if ( $segment === '0' ) {
-			echo 'no_segment_chosen';
 			return 'no_segment_chosen';
 		}
 
@@ -617,7 +622,6 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		}
 
 		if ( $no_cache_records === TRUE  ) {
-			echo 'no_cache_data_to_clear';
 			return 'no_cache_data_to_clear';
 		}
 
@@ -658,10 +662,8 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			}
 
 			if ( $cache_cleared ) {
-				echo 'cache_cleared';
-				return 'cache_cleared';
+				return ucfirst($segment) . '_cache_cleared';
 			} else {
-				echo 'no_' . $segment . '_cache_data_to_clear';
 				return 'no_' . $segment . '_cache_data_to_clear';
 			}
 
@@ -674,15 +676,12 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			}
 
 			if ( $cache_cleared ) {
-				echo 'cache_cleared';
 				return 'cache_cleared';
 			} else {
-				echo 'cache_not_cleared';
 				return 'cache_not_cleared';
 			}
 
 		} else {
-			echo 'unknown_error';
 			return 'unknown_error';
 		}
 	}
