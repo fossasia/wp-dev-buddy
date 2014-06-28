@@ -245,6 +245,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 					break;
 
 				case ucfirst($input['cache_segment']) . '_cache_cleared':
+				case 'cache_cleared':
 					$tone = 'updated';
 					break;
 			}
