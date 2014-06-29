@@ -99,6 +99,12 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 3.1.1 =
+* Amended code that required more recent versions of PHP so that older versions are now supported
+* Submissions on the settings page now check for quotes in fields and reject any that are found
+* Clear cache notice fixed in settings page
+* Some minor code improvements
+
 = 3.1.0 =
 * Cache management facility added to settings page
 * Setting `cache_hours` to `0` will clear the cache if one exists
@@ -164,6 +170,12 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.1.1 =
+* Amended code that required more recent versions of PHP so that older versions are now supported
+* Submissions on the settings page now check for quotes in fields and reject any that are found
+* Clear cache notice fixed in settings page
+* Some minor code improvements
 
 = 3.1.0 =
 * Cache management facility added to settings page
