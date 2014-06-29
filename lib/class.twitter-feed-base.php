@@ -245,6 +245,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 					break;
 
 				case ucfirst($input['cache_segment']) . '_cache_cleared':
+				case 'cache_cleared':
 					$tone = 'updated';
 					break;
 			}
@@ -255,6 +256,44 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			// Return the original options as they're not be changed
 			$input = get_option( $this->options_name_main );
 			return $input;
+		}
+
+
+		// Makes sure that no quotes have been used in any of the fields
+		foreach ( $input as $field_name => $field ) {
+			if ( strpos($field, '"') || strpos($field, "'") ) {
+				// Variable used for consistency when referencing the field name
+				$option_name = $field_name;
+
+				// Get the field name without the "_hid" if it has it
+				$field_is_hidden = FALSE;
+				if ( strpos($field_name, '_hid') ) {
+					$field_is_hidden = TRUE;
+					$field_name_wh = str_replace('_hid', '', $field_name);
+					$option_name = $field_name_wh;
+				}
+
+				// Replace value with quote in with old value from database
+				$input[$field_name] = $this->get_option( $this->options_name_main, $option_name );
+
+				// Check if we already set the error for this field (i.e. has duplicate hidden field)
+				$set_error = TRUE;
+				$error_msgs = get_settings_errors();
+
+				foreach ( $error_msgs as $error_msg ) {
+					if ( in_array('quotes_in_field_' . $option_name, $error_msg) ) {
+						$set_error = FALSE;
+					}
+				}
+
+				if ( $set_error ) {
+					// Let the user know what's up
+					add_settings_error( '', 'quotes_in_field_' . $option_name, 'Quotes are not allowed in the <u>' . ucwords(str_replace('_', ' ', $option_name)) . '</u> field. Your change for that field was not applied' );
+				}
+
+				// Cleared as used else where in this section of code
+				unset($option_name);
+			}
 		}
 
 
@@ -271,7 +310,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		$options      = get_option( $this->options_name_main );
 		$option_saver = array();
 		$option_saver_list = array(
-			'feed_term_cache'
+			//'feed_term_cache'
 		);
 
 		foreach ( $option_saver_list as $option_name ) {
@@ -475,7 +514,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 			switch ( $input['feed_type'] ) {
 				case 'user_timeline':
-					$user = filter_var($input['user'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+					$user = htmlspecialchars($input['user'], ENT_QUOTES);
 					if ( $user !== FALSE ) {
 						$ftc['user_timeline'][ $user ] = array(
 							'cache_began'   => time(),
@@ -486,7 +525,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 				break;
 
 				case 'search':
-					$search_term = filter_var($input['search_term'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+					$search_term = htmlspecialchars($input['search_term'], ENT_QUOTES);
 					if ( $search_term !== FALSE ) {
 						$ftc['search'][ $search_term ] = array(
 							'cache_began'   => time(),
@@ -539,13 +578,13 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 		// Return false if given segment doesn't exist
 		if ( $segment !== NULL && ! array_key_exists($segment, $ftc) ) {
-			error_log('Given segment [' . $segment . '] does not exist in feed term cache');
+			error_log('Given segment [' . $segment . '] does not exist in feed term cache:' . __LINE__);
 			return FALSE;
 		}
 
 		// Return false if data for given identifier doesn't exist
 		if ( $segment !== NULL && array_key_exists($segment, $ftc) && ! isset($ftc[$segment][$term]) ) {
-			error_log('Given term [' . $term . '] does not exist in feed term cache');
+			error_log('Given term [' . $term . '] does not exist in feed term cache:' . __LINE__);
 			return FALSE;
 		}
 
