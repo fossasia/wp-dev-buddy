@@ -7,7 +7,7 @@
 * and methods that will be common across feed
 * plugins.
 *
-* @version 1.1.0
+* @version 1.1.1
 */
 if ( ! class_exists( 'DevBuddy_Feed_Plugin' ) ) {
 
@@ -463,13 +463,35 @@ class DevBuddy_Feed_Plugin {
 
 
 	/**
+	 * Write a message to the debug log, usually found
+	 * in wp-content/debug.log. In some cases, such as
+	 * the value of $msg being an array or object, the
+	 * log will not be written to.
+	 *
+	 * @access public
+	 * @since  1.1.1
+	 *
+	 * @return void
+	 *
+	 * @param  string  $msg      The message to be written to the log
+	 * @param  boolean $override Write to the log regardless of whether or not WP_DEBUG_LOG is set to TRUE
+	 */
+	public function log( $msg, $override = FALSE ) {
+		if ( WP_DEBUG_LOG === TRUE || $override === TRUE ) {
+			@error_log( $msg );
+		}
+	}
+
+
+	/**
 	 * Output the $output to the screen as and when this method
 	 * is called. Use DevBuddy_Feed_Plugin::kill() instead of
 	 * this if you want to end script execution immediately.
 	 *
 	 * @access public
-	 * @return void
 	 * @since 1.1.0
+	 *
+	 * @return void
 	 * 
 	 * @param mixed $output The data you wish to output to screen
 	 * @param bool  $log    Send the $output to the configured error log
@@ -477,7 +499,7 @@ class DevBuddy_Feed_Plugin {
 	public function debug( $output, $log = FALSE ) {
 		// If $output is an array or object, convert it to a string
 		if ( is_array( $output ) || is_object( $output ) ) {
-			$output = '<pre>' . print_r( $output, TRUE ) . '</pre>';
+			$output = print_r( $output, TRUE );
 		}
 
 		// If $output is boolean, convert it to a string
@@ -491,7 +513,11 @@ class DevBuddy_Feed_Plugin {
 			$output = 'NULL';
 		}
 
-		echo $output;
+		echo '<pre>' . $output . '</pre>' . "\n\n";
+
+		if ( $log ) {
+			$this->log( $output );
+		}
 	}
 
 
@@ -499,48 +525,71 @@ class DevBuddy_Feed_Plugin {
 	 * Kills all script execution at the point that this method
 	 * is called and sends $output to the error log. By setting
 	 * the $print parameter to TRUE, the output can be sent to
-	 * the screen too.
+	 * the screen too. $output will also be printed to screen if
+	 * WP_DEBUG is set to TRUE.
 	 *
-	 * @access protected
-	 * @return void
+	 * @access public
 	 * @since  1.1.0
+	 *
+	 * @return void
 	 * 
-	 * @param  mixed   $output   The text that will be output in the error log, and on screen is $print is TRUE
-	 * @param  boolean $print    Set to TRUE to print the output to screen
-	 * @param  boolean $pre_wrap Set to TRUE to wrap the output in <pre> tags. Useful when outputting arrays and objects
+	 * @param  mixed   $output The text that will be output in the error log, and on screen is $print is TRUE
+	 * @param  boolean $print  Set to TRUE to print the output to screen
 	 */
-	protected function kill( $output, $print = TRUE ) {
-		// If $output is an array or object, convert it to a string
-		if ( is_array( $output ) || is_object( $output ) ) {
-			$output = '<pre>' . print_r( $output, TRUE ) . '</pre>';
+	public function kill( $output, $print = FALSE ) {
+		// $print param should be a boolean value
+		if ( ! is_bool( $print ) ) {
+			$this->debug( __METHOD__ . ' expects second parameter to be boolean, ' . gettype( $print ) . ' given', TRUE );
 		}
 
-		// If $output is boolean, convert it to a string
-		if ( is_bool( $output ) ) {
-			$output  = '(bool) ';
-			$output .= ( $output ) ? 'true' : 'false';
-		}
-
-		// If $output is NULL, convert it to a string
-		if ( $output === NULL ) {
-			$output = 'NULL';
+		// Print error to page only if explicitly declared to or if in debug environment
+		if ( $print === TRUE || WP_DEBUG === TRUE ) {
+			$this->debug( $output );
 		}
 
 		// Log the output
-		error_log( $output );
-
-		// Print $output if $print is TRUE
-		if ( $print === TRUE && WP_DEBUG === TRUE ) {
-			echo $output;
-		}
-
-		// $print param should be a boolean value
-		if ( ! is_bool( $print ) ) {
-			error_log( __METHOD__ . ' expects $print parameter to be boolean, ' . gettype( $print ) . ' given' );
-		}
+		$this->log( $output );
 
 		// Kill
 		   die;
+	}
+
+
+	/**
+	 * Declare an error
+	 *
+	 * @access protected
+	 * @since  1.1.1
+	 *
+	 * @return void
+	 *
+	 * @param  int    $level The error level
+	 * @param  string $msg   The error message/details to be written to the page and the error log
+	 */
+	protected function error( $level, $msg ) {
+		// Set error levels
+		$levels = array(
+			1 => 'fatal',
+			2 => 'warning',
+			3 => 'notice'
+		);
+
+		$msg = '<b>' . $levels[$level] . '</b>: ' . $msg;
+
+		// Kill script if fatal error
+		if ( $level === 1 ) {
+			$this->kill( $msg );
+		}
+
+		// Print error message to page for any other error
+		if ( WP_DEBUG === TRUE ) {
+			$this->debug( $msg );
+		}
+
+		// Log error if environment permits
+		if ( WP_DEBUG_LOG === TRUE ) {
+			$this->log( strip_tags($msg) );
+		}
 	}
 
 } // END class

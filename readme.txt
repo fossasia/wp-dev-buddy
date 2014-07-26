@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_i
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
 Tested up to: 3.9.1
-Stable tag: 3.1.1
+Stable tag: 3.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -99,6 +99,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 3.1.2 =
+Refined error and debugging functionality, as well as silencing error_log() notices should one's server not handle it well
+
 = 3.1.1 =
 * Amended code that required more recent versions of PHP so that older versions are now supported
 * Submissions on the settings page now check for quotes in fields and reject any that are found
@@ -170,6 +173,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.1.2 =
+Refined error and debugging functionality, as well as silencing error_log() notices should one's server not handle it well
 
 = 3.1.1 =
 * Amended code that required more recent versions of PHP so that older versions are now supported

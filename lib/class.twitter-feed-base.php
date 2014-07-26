@@ -78,9 +78,6 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_default_styling' ) );
 		add_shortcode( 'db_twitter_feed', array( $this, 'register_twitter_feed_sc' ) );
 
-		// Register batch_clear_cache() for use via WP AJAX
-		//add_action( 'wp_ajax_my_action', array( 'DB_Twitter_Feed_Static', 'batch_clear_cache' ) );
-
 		if ( $this->get_db_plugin_option( $this->options_name_main, 'default_styling' ) === 'yes' )
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_default_styling' ) );
 	}
@@ -390,7 +387,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	*/
 	public function cache_output( $hours = 0 ) {
 		if ( ! isset( $this->options ) ) {
-			error_log( __CLASS__ . '::$options must be set before an output can be cached' );
+			$this->error( 1, __CLASS__ . '->options must be set before an output can be cached' );
 			return FALSE;
 		}
 
@@ -424,12 +421,12 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 					return TRUE;
 
 				} else {
-					error_log('Cache operation unsuccessful near line ' . __LINE__ . ' in ' . __FILE__);
+					$this->error( 2, 'Cache operation unsuccessful near line <b>' . __LINE__ . '</b> in <b>' . __FILE__ . '</b>' );
 					return FALSE;
 				}
 
 			} else {
-				error_log('Given ID should not be FALSE near line ' . __LINE__ . ' in ' . __FILE__);
+				$this->error( 2, 'Given ID should not be FALSE near line <b>' . __LINE__ . '</b> in <b>' . __FILE__ . '</b>' );
 				return FALSE;
 			}
 
@@ -471,7 +468,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			return TRUE;
 
 		} else {
-			error_log(__METHOD__ . ' was unsuccessful');
+			$this->error( 2, __METHOD__ . ' was unsuccessful' );
 			return FALSE;
 		}
 	}
@@ -542,7 +539,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 			if ( $valid_feed_type === TRUE ) {
 				if ( set_transient( $this->plugin_name . '_ftc', $ftc, 3600 * 24 ) === FALSE ) {
-					error_log('set_transient() for ' . $this->plugin_name . '_ftc was unsuccessful');
+					$this->error( 2, 'set_transient() for ' . $this->plugin_name . '_ftc was unsuccessful' );
 					return FALSE;
 
 				} else {
@@ -550,7 +547,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 				}
 
 			} else {
-				error_log('Invalid feed type on line ' . __LINE__);
+				$this->error( 2, 'Invalid feed type on line ' . __LINE__ );
 				return FALSE;
 			}
 		}
@@ -570,21 +567,28 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	protected function clear_feed_term_cache_item( $term, $segment = NULL ) {
 		$ftc = get_transient( $this->plugin_name . '_ftc' );
 
-		// Check that a feed term cache is even available
-		if ( $ftc === FALSE ) {
-			error_log('A feed term cache has not recently been created, nothing to clear');
+		// Check that a feed term cache is even available and has entries
+		$ftc_is_empty = TRUE;
+		foreach ( $ftc as $cache ) {
+			if ( ! empty( $cache ) ) {
+				$ftc_is_empty = FALSE;
+			}
+		}
+
+		if ( $ftc === FALSE || $ftc_is_empty === TRUE ) {
+			$this->error( 3, 'A feed term cache has not recently been created, nothing to clear' );
 			return FALSE;
 		}
 
 		// Return false if given segment doesn't exist
 		if ( $segment !== NULL && ! array_key_exists($segment, $ftc) ) {
-			error_log('Given segment [' . $segment . '] does not exist in feed term cache:' . __LINE__);
+			$this->error( 2, 'Given segment [' . $segment . '] does not exist in feed term cache:' . __LINE__ );
 			return FALSE;
 		}
 
 		// Return false if data for given identifier doesn't exist
 		if ( $segment !== NULL && array_key_exists($segment, $ftc) && ! isset($ftc[$segment][$term]) ) {
-			error_log('Given term [' . $term . '] does not exist in feed term cache:' . __LINE__);
+			$this->error( 3, 'Given term [' . $term . '] does not exist in feed term cache:' . __LINE__);
 			return FALSE;
 		}
 
@@ -609,7 +613,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		if ( $ftc_updated === TRUE ) {
 			return TRUE;
 		} else {
-			error_log(__METHOD__ . ', ftc transient update was unsuccessful');
+			$this->error( 2, __METHOD__ . ', ftc transient update was unsuccessful' );
 			return FALSE;
 		}
 
