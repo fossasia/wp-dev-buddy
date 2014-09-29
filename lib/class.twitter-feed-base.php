@@ -567,12 +567,19 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	protected function clear_feed_term_cache_item( $term, $segment = NULL ) {
 		$ftc = get_transient( $this->plugin_name . '_ftc' );
 
-		// Check that a feed term cache is even available and has entries
+		// Assuming empty
 		$ftc_is_empty = TRUE;
-		foreach ( $ftc as $cache ) {
-			if ( ! empty( $cache ) ) {
-				$ftc_is_empty = FALSE;
+
+		// Check that a feed term cache is even available...
+		if ( $ftc !== FALSE ) {
+
+			// ...and has entries
+			foreach ( $ftc as $cache ) {
+				if ( ! empty( $cache ) ) {
+					$ftc_is_empty = FALSE;
+				}
 			}
+
 		}
 
 		if ( $ftc === FALSE || $ftc_is_empty === TRUE ) {
