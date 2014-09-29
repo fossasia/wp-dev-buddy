@@ -99,6 +99,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Changelog ==
 
+= 3.1.3 =
+Bug fix: A lack of a feed term cache in in website cache no longer prompts error message
+
 = 3.1.2 =
 Refined error and debugging functionality, as well as silencing error_log() notices should one's server not handle it well
 
@@ -173,6 +176,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.1.3 =
+Bug fix: A lack of a feed term cache in in website cache no longer prompts error message
 
 = 3.1.2 =
 Refined error and debugging functionality, as well as silencing error_log() notices should one's server not handle it well
