@@ -3,8 +3,8 @@ Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
-Tested up to: 3.9.1
-Stable tag: 3.1.3
+Tested up to: 4.1.0
+Stable tag: 3.2.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -62,10 +62,16 @@ Both accept the same arguments/attributes which are all listed and explained bel
 > The term you wish to search Twitter for, with or without a hashtag.
 
 **count (int)**; *default*: 10
-> The number of tweets you want displayed. The maximum Twitter allows per request is at 200 but anything higher than 30 seems to noticeably affect the page load time, especially when loading multiple feeds on the one page.
+> The number of tweets you want displayed. The maximum Twitter allows per request is at 200. Page speed can be substantially affected when loading multiple feeds on one page.
 
 **exclude_replies (string)**: `yes` or `no`; *default*: `no`
 > The option of whether or not to keep replies out of the feed displayed. Go with `no` to keep replies in, `yes` to take them out. NOTE: Twitter removes replies only after it retrieves the number of tweets you request. Thus if you choose 10, and out of that 10 6 are replies, only 4 tweets will be displayed.
+
+**show_images (string)**: `yes` or `no`; *default*: `no`
+> The option of whether or not to display embedded images within the rendered feed. The caching of images is left to the browser to handle.
+
+**https (string)**: `yes` or `no`; *default*: `no`
+> The option of whether or not to load media from Twitter over their secure connection.
 
 **default_styling (string)**: `yes` or `no`; *default*: `no`
 > The option of whether or not to load the default stylesheet bundled with this plugin. Go with `yes` to load it, `no` to skip loading it. Bear in mind that once the stylesheet is loaded it is loaded to the page so all feeds on the page will be affected by it. Hence, when rendering multiple feeds you only need to `yes` with one, and leave it out of the others.
@@ -74,7 +80,7 @@ Both accept the same arguments/attributes which are all listed and explained bel
 > The number of hours you would like the feed cached for. The cache is saved using WordPress' own `set_transient()` function.
 
 **clear_cache (string)**: `yes` or `no`; *default*: `no`
-> Clears the cached version of the feed. If a cached version exists this plugin skips looking at the options altogether so this is a must if you're changing any options. If you're using either the template tag or the shortcode *without* passing information (i.e. all settings from settings page), the cache will be cleared each time the "Save Changes" button is clicked on the plugin's settings page. **This option will only work if the "user" option has been set**
+> Clears the cached version of the feed. If a cached version exists this plugin skips looking at the options altogether so this is a must if you're changing any options. If you're using either the template tag or the shortcode *without* passing information (i.e. all settings from settings page), the cache will be cleared each time the "Save Changes" button is clicked on the plugin's settings page.
 
 **consumer_key**,
 **consumer_secret**,
@@ -98,6 +104,12 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 
 == Changelog ==
+
+= 3.2.0 =
+* Feeds now have the facility to display embedded image media along with the tweet. Simply update the option on the settings page, or add `show_images="yes"` to your shortcode, or add `'show_images' => 'yes'` to the options array of your template tag
+* Feeds have the option of loading media content over HTTPS. Simply update the option on the settings page, or add `https="yes"` to your shortcode, or add `'https' => 'yes'` to the options array of your template tag
+* The bundled stylesheet has been modified to improve UX on touchscreen devices
+* General housekeeping and minor improvements.
 
 = 3.1.3 =
 Bug fix: A lack of a feed term cache in in website cache no longer prompts error message
@@ -176,6 +188,12 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 3.2.0 =
+* Feeds now have the facility to display embedded image media along with the tweet. Simply update the option on the settings page, or add `show_images="yes"` to your shortcode, or add `'show_images' => 'yes'` to the options array of your template tag
+* Feeds have the option of loading media content over HTTPS. Simply update the option on the settings page, or add `https="yes"` to your shortcode, or add `'https' => 'yes'` to the options array of your template tag
+* The bundled stylesheet has been modified to improve UX on touchscreen devices
+* General housekeeping and minor improvements.
 
 = 3.1.3 =
 Bug fix: A lack of a feed term cache in in website cache no longer prompts error message

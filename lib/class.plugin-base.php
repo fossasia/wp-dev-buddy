@@ -7,7 +7,7 @@
 * and methods that will be common across feed
 * plugins.
 *
-* @version 1.1.1
+* @version 1.1.2
 */
 if ( ! class_exists( 'DevBuddy_Feed_Plugin' ) ) {
 
@@ -62,7 +62,7 @@ class DevBuddy_Feed_Plugin {
 	/**
 	* Used to get the value of an option stored in the database
 	* 
-	* Option data is actually stored within an array of values
+	* Option data is typically stored within an array of values
 	* under one option entry within the WordPress database. So
 	* to get an option's value you need to provide the option
 	* entry along with the specific option you want the value
@@ -71,18 +71,27 @@ class DevBuddy_Feed_Plugin {
 	* @access public
 	* @return mixed The value of the option you're looking for or FALSE if no value exists
 	*
-	* @param string $option_entry The option name that WP recognises as an entry
+	* @param string $option_entry The option name that WP recognises as an entry. Passing only this will return all option data for that entry
 	* @param string $option_name  The name of the specific plugin option you want the value of
 	*
 	* @since 1.0.1
 	*/
-	public function get_option( $option_entry, $option_name ) {
+	public function get_option( $option_entry, $option_name = NULL ) {
 		$options = get_option( $option_entry );
 
-		if ( isset( $options[ $option_name ] ) && $options[ $option_name ] != '' ) {
-			return $options[ $option_name ];
-		} else {
+		if ( ! $options ) {
 			return FALSE;
+		}
+
+		if ( $option_name === NULL ) {
+			return $options;
+
+		} else {
+			if ( isset( $options[ $option_name ] ) && $options[ $option_name ] != '' ) {
+				return $options[ $option_name ];
+			} else {
+				return FALSE;
+			}
 		}
 	}
 
@@ -98,7 +107,7 @@ class DevBuddy_Feed_Plugin {
 	*
 	* @since 1.0.0
 	*/
-	public function get_db_plugin_option( $option_entry, $option_name ) {
+	public function get_db_plugin_option( $option_entry, $option_name = NULL ) {
 		return $this->get_option( $option_entry, $option_name );
 	}
 

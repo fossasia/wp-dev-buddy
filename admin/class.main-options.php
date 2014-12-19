@@ -3,7 +3,7 @@
 /**
 * A class to create the settings page for this plugin within WordPress
 *
-* @version 2.0.0
+* @version 2.1.0
 */
 if ( ! class_exists( 'DB_Twitter_Feed_Main_Options' ) ) {
 
@@ -163,7 +163,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 				'page'     => $this->page_uri_main,
 				'section'  => 'feed_sec',
 				'args'     => array(
-					'desc'   => 'Searches with or without a hashtag are acceptable',
+					'desc'   => 'Searches with or without a hashtag are acceptable.',
 					'attr'   => array(
 						'class' => 'input_feed_type'
 					)
@@ -189,7 +189,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 				'args'     => array(
 					'min'    => 0,
 					'max'    => 24,
-					'desc'   => '<p class="description">Select 0 if you don&rsquo;t wish to cache the feed</p>' )
+					'desc'   => '<p class="description">Select 0 if you don&rsquo;t wish to cache the feed.</p>' )
 			),
 			'exclude_replies' => array(
 				'id'       => 'exclude_replies',
@@ -199,6 +199,24 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 				'section'  => 'settings_sec',
 				'args'     => array(
 					'desc'   => '<p class="description">Twitter removes replies only after it retrieves the number of tweets you request.<br />Thus if you choose 10, and out of that 10 6 are replies, only 4 tweets will be displayed.</p>'
+				)
+			),
+			'show_images' => array(
+				'id'       => 'show_images',
+				'title'    => 'Show embedded images?',
+				'callback' => array( $this, 'write_checkbox_field' ),
+				'page'     => $this->page_uri_main,
+				'section'  => 'settings_sec',
+				'args'     => ''
+			),
+			'https' => array(
+				'id'       => 'https',
+				'title'    => 'Load media over HTTPS?',
+				'callback' => array( $this, 'write_checkbox_field' ),
+				'page'     => $this->page_uri_main,
+				'section'  => 'settings_sec',
+				'args'     => array(
+					'desc'   => '<p class="description">This only affects media served by Twitter.</p>'
 				)
 			),
 			'default_styling' => array(
@@ -214,7 +232,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 				'title'    => '',
 				'callback' => array( $this, 'write__field' ),
 				'page'     => $this->page_uri_main,
-				'section'  => ''
+				'section'  => '',
 				'args'     => ''
 			)*/
 		);
@@ -406,7 +424,7 @@ class DB_Twitter_Feed_Main_Options extends DB_Plugin_WP_Admin_Helper {
 		echo 'Select a cache segment to clear.';
 		echo '<div class="' . $this->plugin_short_name . '_cache_management_section settings_item">';
 
-		echo '<select name="' . $this->options_name_main . '[cache_segment]">
+		echo '<select name="' . $this->options_name_main . '[cache_segment]" id="' . $this->plugin_short_name . '_cache_segment">
 				<option value="0">--</option>
 				<option value="user_timeline">User timelines</option>
 				<option value="search">Searches</option>

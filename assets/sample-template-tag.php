@@ -4,18 +4,22 @@
 Once you've initialised the feed using `new DB_Twitter_Feed` the feed's configuration options
 will be available to you as an array. The defaults of which are shown below:
 
-$the_feed->options['feed_type']                 => 'user_timeline', // String: ("user_timeine" or "search") The type of feed to render
-$the_feed->options['user']                      => 'EjiOsigwe'      // String: Any valid Twitter username
-$the_feed->options['search_term']               => '#twitter',      // String: Any term to be search on Twitter
-$the_feed->options['count']                     => '10'             // String: Number of tweets to retrieve
-$the_feed->options['exclude_replies']           => 'no'             // String: ("yes" or "no") Only display tweets that aren't replies
-$the_feed->options['default_styling']           => 'no'             // String: ("yes" or "no") Load the bundled stylesheet
-$the_feed->options['cache_hours']               => 0                // Int:    Number of hours to cache the output
-$the_feed->options['clear_cache']               => 'no'             // String: ("yes" or "no") Clear the cache for the set "user"
-$the_feed->options['oauth_access_token']        => NULL             // String: The OAuth Access Token
-$the_feed->options['oauth_access_token_secret'] => NULL             // String: The OAuth Access Token Secret
-$the_feed->options['consumer_key']              => NULL             // String: The Consumer Key
-$the_feed->options['consumer_secret']           => NULL             // String: The Consumer Secret
+$the_feed->options['feed_type']       => 'user_timeline'  // "user_timeine" or "search"
+$the_feed->options['user']            => 'EjiOsigwe'      // Any valid Twitter username
+$the_feed->options['search_term']     => '#twitter'       // Any term to be searched on Twitter
+$the_feed->options['count']           => '10'             // Number of tweets to retrieve
+$the_feed->options['exclude_replies'] => 'no'             // ("yes" or "no") Only display tweets that aren't replies
+$the_feed->options['show_images']     => 'no'             // ("yes" or "no") Load embedded images
+$the_feed->options['https']           => 'no'             // ("yes" or "no") Load media from Twitter over secure HTTPS
+$the_feed->options['default_styling'] => 'no'             // ("yes" or "no") Load the bundled stylesheet
+$the_feed->options['cache_hours']     => 0                // Number of hours to cache the output
+$the_feed->options['clear_cache']     => 'no'             // ("yes" or "no") Clear the cache for the set feed term
+
+All access keys default to NULL:
+$the_feed->options['oauth_access_token']        => NULL             // The OAuth Access Token
+$the_feed->options['oauth_access_token_secret'] => NULL             // The OAuth Access Token Secret
+$the_feed->options['consumer_key']              => NULL             // The Consumer Key
+$the_feed->options['consumer_secret']           => NULL             // The Consumer Secret
 
 
 There are also some Twitter specific links available too:
@@ -114,6 +118,7 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 
 						// START Actual tweet
 						$the_feed->output .= $the_feed->html->tweet_text();
+						$the_feed->output .= $the_feed->html->tweet_media();
 						// END Actual tweet
 
 

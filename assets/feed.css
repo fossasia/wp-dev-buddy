@@ -73,10 +73,11 @@
 			
 		}
 		.tweet_date {
-			display:block;
+			display:inline-block;
 			color:#a0a0a0;
 		}
 		.tweet_retweet {
+			display:block;
 			color:#a0a0a0;
 		}
 			.tweet_retweet a {
@@ -88,19 +89,16 @@
 
 		/* Tweet actions */
 		.tweet_intents {
-			height:17px;
+			height:auto;
 		}
-		.tweet:hover .tweet_intents a {
-			display:inline-block;
-		}
-			.tweet_intents a {
-				display:none;
-				padding-left:10px;
+			.tweet_intents .tweet_intent {
+				display:inline-block;
+				margin-left:10px;
 			}
-			.tweet_intents a:first-child {
-				padding-left:0;
+			.tweet_intents .tweet_intent:first-child {
+				margin-left:0;
 			}
-				.tweet_intents a b {
+				.tweet_intents .tweet_intent b {
 					font-weight:normal;
 				}
 			.tweet_intent_reply .tweet_icon_reply {
@@ -155,4 +153,16 @@
 	width:15px;
 	height:15px;
 	top:3px;
+}
+
+@media screen and (max-width:400px) {
+	.tweet_intents .tweet_intent {
+		padding:2px 12px;
+	}
+	.tweet_icon {
+		margin:0;
+	}
+	.tweet_intent_txt {
+		display:none;
+	}
 }

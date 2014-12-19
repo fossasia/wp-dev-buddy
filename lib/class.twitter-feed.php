@@ -1,53 +1,53 @@
 <?php
 
 /**
-* A class for rendering the Twitter feed
-*
-* This is the class to call at the top when scripting
-* the template tag. Be sure to offer a $feed_config
-* array as the parameter to properly initialise the
-* object instance.
-*
-* @version 1.1.0
-*/
+ * A class for rendering the Twitter feed
+ *
+ * This is the class to call at the top when scripting
+ * the template tag. Be sure to offer a $feed_config
+ * array as the parameter to properly initialise the
+ * object instance.
+ *
+ * @version 1.2.0
+ */
 if ( ! class_exists( 'DB_Twitter_Feed' ) ) {
 
 class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 	/**
-	* @var array A holding place for parsed tweet data
-	* @since 1.0.3
-	*/
+	 * @var array A holding place for parsed tweet data
+	 * @since 1.0.3
+	 */
 	protected $tweet;
 
 	/**
-	* @var object Holds an instance of the HTML rendering class
-	* @since 1.0.3
-	*/
+	 * @var object Holds an instance of the HTML rendering class
+	 * @since 1.0.3
+	 */
 	public $html;
 
 	/**
-	* @var string Main Twitter URL
-	* @since 1.0.0
-	*/
+	 * @var string Main Twitter URL
+	 * @since 1.0.0
+	 */
 	public $tw = 'https://twitter.com/';
 
 	/**
-	* @var string Twitter search URL
-	* @since 1.0.0
-	*/
+	 * @var string Twitter search URL
+	 * @since 1.0.0
+	 */
 	public $search = 'https://twitter.com/search?q=';
 
 	/**
-	* @var string Twitter intent URL
-	* @since 1.0.0
-	*/
+	 * @var string Twitter intent URL
+	 * @since 1.0.0
+	 */
 	public $intent = 'https://twitter.com/intent/';
 
 	/**
-	* @var array If there are any errors after a check is made for such, they will be stored here
-	* @since 1.0.2
-	*/
+	 * @var array If there are any errors after a check is made for such, they will be stored here
+	 * @since 1.0.2
+	 */
 	public $errors;
 
 	/**
@@ -58,12 +58,12 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Constructor.
-	*
-	* @access public
-	* @return void
-	* @since 1.0.0
-	*/
+	 * Constructor.
+	 *
+	 * @access public
+	 * @return void
+	 * @since 1.0.0
+	 */
 	public function __construct( $feed_config ) {
 
 		$this->set_main_admin_vars();
@@ -73,16 +73,16 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Configure data necessary for rendering the feed
-	*
-	* Get the feed configuration provided by the user
-	* and use defaults for options not provided, check
-	* for a cached version of the feed under the given
-	* user, initialise a Twitter API object.
-	*
-	* @access private
-	* @return void
-	* @since 1.0.4
+	 * Configure data necessary for rendering the feed
+	 *
+	 * Get the feed configuration provided by the user
+	 * and use defaults for options not provided, check
+	 * for a cached version of the feed under the given
+	 * user, initialise a Twitter API object.
+	 *
+	 * @access private
+	 * @return void
+	 * @since  1.0.4
 	 */
 	private function initialise_the_feed( $feed_config ) {
 
@@ -94,7 +94,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		}
 
 		foreach ( $this->defaults as $option => $value ) {
-			if ( ! array_key_exists( $option, $feed_config ) || $feed_config[ $option ] === NULL ) {
+			if ( ! array_key_exists( $option, $feed_config ) || empty( $feed_config[ $option ] ) ) {
 				if ( $option === 'user' ) {
 					$stored_value = $this->get_db_plugin_option( $this->options_name_main, 'twitter_username' );
 
@@ -197,32 +197,51 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		$this->html = new DB_Twitter_HTML( $this->options, $url_data );
 
 
-		// Get Twitter object
+		// Check for any NULL value auth options
 		$auth_data = array(
 			'oauth_access_token'        => $this->options['oauth_access_token'],
 			'oauth_access_token_secret' => $this->options['oauth_access_token_secret'],
 			'consumer_key'              => $this->options['consumer_key'],
 			'consumer_secret'           => $this->options['consumer_secret']
 		);
-		$this->twitter = new TwitterAPIExchange( $auth_data );
+
+		if ( in_array( NULL, $auth_data ) ) {
+			foreach ( $auth_data as $auth_name => $auth_value ) {
+				if ( $auth_value === NULL ) {
+					$msg  = 'Unable to authorise connection to Twitter, no ';
+					$msg .= ucwords( str_replace( '_', ' ', $auth_name ) );
+					$msg .= ' given';
+					$this->register_feed_error( $msg );
+				}
+			}
+
+		} else {
+			// Get Twitter object
+			$this->twitter = new TwitterAPIExchange( $auth_data );
+		}
 
 	}
 
 
 	/**
-	* Based on a limited number of config options, retrieve the raw feed (JSON)
-	*
-	* @access public
-	* @return void
-	* @since 1.0.0
-	*/
+	 * Based on a limited number of config options, retrieve the raw feed (JSON)
+	 *
+	 * @access public
+	 * @return bool TRUE on success, FALSE otherwise
+	 * @since  1.0.0
+	 */
 	public function retrieve_feed_data() {
+
+		// Skip this method if there are errors registered
+		if ( $this->has_errors() ) {
+			return false;
+		}
 
 		switch ( $this->options['feed_type'] ) {
 			default:
 			case 'user_timeline':
-				$url            = 'https://api.twitter.com/1.1/statuses/user_timeline/'.$this->options['user'].'.json';
-				$get_field      = '?screen_name='.$this->options['user'];
+				$url       = 'https://api.twitter.com/1.1/statuses/user_timeline/'.$this->options['user'].'.json';
+				$get_field = '?screen_name='.$this->options['user'];
 
 				if ( $this->options['exclude_replies'] === 'yes' ) {
 					$get_field .= '&exclude_replies=true';
@@ -230,8 +249,8 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			break;
 
 			case 'search':
-				$url            = 'https://api.twitter.com/1.1/search/tweets.json';
-				$get_field      = '?q='.urlencode($this->options['search_term']).'&result_type=recent&since_id=1';
+				$url       = 'https://api.twitter.com/1.1/search/tweets.json';
+				$get_field = '?q='.urlencode($this->options['search_term']).'&result_type=recent&since_id=1';
 			break;
 		}
 
@@ -251,6 +270,19 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$this->feed_data = $this->feed_data->statuses;
 		}
 
+		// Register any errors. Return false where errors exist
+		if ( is_object( $this->feed_data ) && is_array( $this->feed_data->errors ) ) {
+			foreach ( $this->feed_data->errors as $error ) {
+				$this->register_feed_error( $error->message, $error->code );
+			}
+
+			return FALSE;
+		}
+
+
+		// All is well
+		return true;
+
 	}
 
 
@@ -267,40 +299,18 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Check that the timeline queried actually has tweets
-	*
-	* @access public
-	* @return bool An indication of whether or not the returned feed data has any renderable entries
-	* @since 1.0.1
-	*/
+	 * Check that the timeline queried actually has tweets
+	 *
+	 * @access public
+	 * @return bool An indication of whether or not the returned feed data has any renderable entries
+	 * @since  1.0.1
+	 */
 	public function is_empty() {
 
 		if ( is_array( $this->feed_data ) && count( $this->feed_data ) === 0 ) {
 			return TRUE;
 
-		} else {
-			return FALSE;
-
-		}
-
-	}
-
-
-	/**
-	* Check to see if any errors have been returned when retrieving feed data
-	*
-	* Be sure to use this only after the retrieve_feed_data() method has been
-	* called as that's the method that first populates the $feed_data property
-	* that this method checks.
-	*
-	* @access public
-	* @return bool
-	* @since 1.0.2
-	*/
-	public function has_errors() {
-
-		if ( is_object( $this->feed_data ) && is_array( $this->feed_data->errors ) ) {
-			$this->errors = $this->feed_data->errors;
+		} elseif ( empty( $this->feed_data ) ) {
 			return TRUE;
 
 		} else {
@@ -312,15 +322,61 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Parse and return useful tweet data from an individual tweet in an array
-	*
-	* This is best utilised within an iteration loop that iterates through a
-	* populated $feed_data.
-	*
-	* @access public
-	* @return array Tweet data from the tweet item given
-	* @since 1.0.2
-	*/
+	 * Check to see if any errors have been returned during the process of
+	 * handling feed data
+	 *
+	 * @access public
+	 * @return bool
+	 * @since  1.0.2
+	 */
+	public function has_errors() {
+
+		if ( ! empty ( $this->errors ) ) {
+			return TRUE;
+
+		} else {
+			return FALSE;
+
+		}
+
+	}
+
+
+	/**
+	 * Register an error and its message for this particular feed instance
+	 *
+	 * @access public
+	 * @return void
+	 * @since  1.2.0
+	 *
+	 * @param string $msg  Error details
+	 * @param mixed  $code A code that represents the error that you're registering
+	 */
+	public function register_feed_error( $msg, $code = 'NA (internal error)' ) {
+
+		if ( empty ( $this->errors ) ) {
+			$this->errors = array();
+		}
+
+		$error = new stdClass();
+		$error->message = $msg;
+		$error->code    = $code;
+
+		$this->errors[] = $error;
+
+	}
+
+
+	/**
+	 * Parse and return useful tweet data from an individual tweet in an array
+	 *
+	 * This is best utilised within an iteration loop that iterates through a
+	 * populated $feed_data.
+	 *
+	 * @access public
+	 * @return array Tweet data from the tweet item given
+	 * @since  1.0.2
+	 */
 	public function parse_tweet_data( $t ) {
 
 		$tweet = array();
@@ -331,11 +387,12 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	/*	User data */
 	/************************************************/
 		if ( ! $tweet['is_retweet'] ) {
-			$tweet['user_id']           = $t->user->id_str;
-			$tweet['user_display_name'] = $t->user->name;
-			$tweet['user_screen_name']  = $t->user->screen_name;
-			$tweet['user_description']  = $t->user->description;
-			$tweet['profile_img_url']   = $t->user->profile_image_url;
+			$tweet['user_id']               = $t->user->id_str;
+			$tweet['user_display_name']     = $t->user->name;
+			$tweet['user_screen_name']      = $t->user->screen_name;
+			$tweet['user_description']      = $t->user->description;
+			$tweet['profile_img_url']       = $t->user->profile_image_url;
+			$tweet['profile_img_url_https'] = $t->user->profile_image_url_https;
 
 			if ( isset( $t->user->entities->url->urls ) ) {
 				$tweet['user_urls'] = array();
@@ -353,14 +410,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 		/*	To emulate this we need to grab the necessary data
 			that Twitter has thoughtfully made available to us */
 		} elseif ( $tweet['is_retweet'] ) {
-			$tweet['retweeter_display_name']  = $t->user->name;
-			$tweet['retweeter_screen_name']   = $t->user->screen_name;
-			$tweet['retweeter_description']   = $t->user->description;
-			$tweet['user_id']           = $t->retweeted_status->user->id_str;
-			$tweet['user_display_name'] = $t->retweeted_status->user->name;
-			$tweet['user_screen_name']  = $t->retweeted_status->user->screen_name;
-			$tweet['user_description']  = $t->retweeted_status->user->description;
-			$tweet['profile_img_url']   = $t->retweeted_status->user->profile_image_url;
+			$tweet['retweeter_display_name'] = $t->user->name;
+			$tweet['retweeter_screen_name']  = $t->user->screen_name;
+			$tweet['retweeter_description']  = $t->user->description;
+			$tweet['user_id']                = $t->retweeted_status->user->id_str;
+			$tweet['user_display_name']      = $t->retweeted_status->user->name;
+			$tweet['user_screen_name']       = $t->retweeted_status->user->screen_name;
+			$tweet['user_description']       = $t->retweeted_status->user->description;
+			$tweet['profile_img_url']        = $t->retweeted_status->user->profile_image_url;
+			$tweet['profile_img_url_https']  = $t->retweeted_status->user->profile_image_url_https;
 
 			if ( isset( $t->retweeted_status->url ) ) {
 				$tweet['user_urls'] = array();
@@ -414,12 +472,14 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			$tweet['media'] = array();
 			foreach ( $t->entities->media as $media_data ) {
 				$tweet['media'][] = array(
-					'id'           => $media_data->id_str,
-					'type'         => $media_data->type,
-					'short_url'    => $media_data->url,
-					'media_url'    => $media_data->media_url,
-					'display_url'  => $media_data->display_url,
-					'expanded_url' => $media_data->expanded_url
+					'id'              => $media_data->id_str,
+					'type'            => $media_data->type,
+					'sizes'           => $media_data->sizes,
+					'short_url'       => $media_data->url,
+					'media_url'       => $media_data->media_url,
+					'display_url'     => $media_data->display_url,
+					'expanded_url'    => $media_data->expanded_url,
+					'media_url_https' => $media_data->media_url_https
 				);
 			}
 		}
@@ -452,14 +512,14 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Loop through the feed data and render the HTML of the feed
-	*
-	* The output is stored in the $output property
-	*
-	* @access public
-	* @return void
-	* @since 1.0.0
-	*/
+	 * Loop through the feed data and render the HTML of the feed
+	 *
+	 * The output is stored in the $output property
+	 *
+	 * @access public
+	 * @return void
+	 * @since  1.0.0
+	 */
 	public function render_feed_html() {
 		// The holding element
 		$this->output .= '<div class="tweets">';
@@ -476,7 +536,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 			}
 
 			$this->output .= '</ul>';
-			$this->output .= '<p>More information on errors <a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank" title="Twitter API Error Codes and Responses">here</a>.</p>';
+			$this->output .= '<p>More information on errors that have codes <a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank" title="Twitter API Error Codes and Responses">here</a>.</p>';
 
 		/* If the result set returned by the request is
 		   empty we let the user know */
@@ -509,14 +569,14 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Takes a tweet object and renders the HTML for that tweet
-	*
-	* The output is stored in the $output property
-	*
-	* @access public
-	* @return void
-	* @since 1.0.0
-	*/
+	 * Takes a tweet object and renders the HTML for that tweet
+	 *
+	 * The output is stored in the $output property
+	 *
+	 * @access public
+	 * @return void
+	 * @since  1.0.0
+	 */
 	public function render_tweet_html( $the_tweet ) {
 
 		$this->tweet = $this->parse_tweet_data( $the_tweet );
@@ -545,6 +605,7 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 				// START Actual tweet
 				$this->output .= $this->html->tweet_text();
+				$this->output .= $this->html->tweet_media();
 				// END Actual tweet
 
 
@@ -582,15 +643,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	/************************************************/
 
 	/**
-	* Transform hastags within a tweet into active links
-	*
-	* @access public
-	* @return string The tweet with the hashtags transformed into links
-	* @since 1.0.0
-	*
-	* @param $tweet    string The existing tweet text
-	* @param $hashtags array  An array containing the hashtag data returned by twitter in its entities values
-	*/
+	 * Transform hastags within a tweet into active links
+	 *
+	 * @access public
+	 * @return string The tweet with the hashtags transformed into links
+	 * @since  1.0.0
+	 *
+	 * @param $tweet    string The existing tweet text
+	 * @param $hashtags array  An array containing the hashtag data returned by twitter in its entities values
+	 */
 	public function linkify_hashtags( $tweet, $hashtags ) {
 
 		if ( $hashtags !== NULL ) {
@@ -612,15 +673,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	}
 
 	/**
-	* Transform mentions within a tweet into active links
-	*
-	* @access public
-	* @return string The tweet with the mentions transformed into links
-	* @since 1.0.0
-	*
-	* @param $tweet    string The existing tweet text
-	* @param $mentions array  An array containing the mention data returned by twitter in its entities values
-	*/
+	 * Transform mentions within a tweet into active links
+	 *
+	 * @access public
+	 * @return string The tweet with the mentions transformed into links
+	 * @since  1.0.0
+	 *
+	 * @param $tweet    string The existing tweet text
+	 * @param $mentions array  An array containing the mention data returned by twitter in its entities values
+	 */
 	public function linkify_mentions( $tweet, $mentions ) {
 
 		if ( is_array( $mentions ) && count( $mentions ) !== 0 ) {
@@ -646,15 +707,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	}
 
 	/**
-	* Transform URLs within a tweet into active links
-	*
-	* @access public
-	* @return string The tweet with the URLs transformed into active links
-	* @since 1.0.0
-	*
-	* @param $tweet string The existing tweet text
-	* @param $urls  array  An array containing the URL data returned by twitter in its entities values
-	*/
+	 * Transform URLs within a tweet into active links
+	 *
+	 * @access public
+	 * @return string The tweet with the URLs transformed into active links
+	 * @since  1.0.0
+	 *
+	 * @param $tweet string The existing tweet text
+	 * @param $urls  array  An array containing the URL data returned by twitter in its entities values
+	 */
 	public function linkify_links( $tweet, $urls ) {
 
 		if ( is_array( $urls ) && count( $urls ) !== 0 ) {
@@ -680,15 +741,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 	}
 
 	/**
-	* Transform media data within a tweet into active links
-	*
-	* @access public
-	* @return string The tweet with any media transformed into active links
-	* @since 1.0.0
-	*
-	* @param $tweet string The existing tweet text
-	* @param $media array  An array containing the media data returned by twitter in its entities values
-	*/
+	 * Transform media data within a tweet into active links
+	 *
+	 * @access public
+	 * @return string The tweet with any media transformed into active links
+	 * @since  1.0.0
+	 *
+	 * @param $tweet string The existing tweet text
+	 * @param $media array  An array containing the media data returned by twitter in its entities values
+	 */
 	public function linkify_media( $tweet, $media ) {
 
 		if ( is_array( $media ) && count( $media ) !== 0 ) {
@@ -715,16 +776,15 @@ class DB_Twitter_Feed extends DB_Twitter_Feed_Base {
 
 
 	/**
-	* Echo whatever is currently stored in the DB_Twitter_Feed::output property to the page
-	*
-	* This method also calls the DevBuddy_Feed_Plugin::cache_output() method
-	*
-	* @access public
-	* @return void
-	* @uses DevBuddy_Feed_Plugin::cache_output() to cache the output before it's echoed
-	*
-	* @since 1.0.0
-	*/
+	 * Echo whatever is currently stored in the DB_Twitter_Feed::output property to the page
+	 *
+	 * This method also calls the DevBuddy_Feed_Plugin::cache_output() method
+	 *
+	 * @access public
+	 * @return void
+	 * @since  1.0.0
+	 * @uses   DevBuddy_Feed_Plugin::cache_output() to cache the output before it's echoed
+	 */
 	public function echo_output() {
 
 		$this->cache_output( $this->options['cache_hours'] );
