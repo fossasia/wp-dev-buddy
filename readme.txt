@@ -90,6 +90,9 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 == Frequently Asked Questions ==
 
+**How do I contribute to this plugin?**
+>  Make a pull request at https://github.com/EjiOsigwe/devbuddy-twitter-feed.
+
 **How do I create my own template tag and shortcode?**
 > Simply take a look at the sample files in the `assets` directory of this plugin. The code in these files can be copied over to your theme (included in your functions.php file) and customised to suit your needs. The sample files are well commented and will work right out of the box.
 
