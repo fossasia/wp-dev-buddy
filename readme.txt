@@ -3,12 +3,12 @@ Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
 Requires at least: 3.1.0
-Tested up to: 4.1.0
-Stable tag: 3.2.0
+Tested up to: 4.2.1
+Stable tag: 4.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A Twitter (v1.1) feed plugin for the developers that's flexible and supports displaying multiple feeds of both user and search timelines.
+A Twitter (v1.1) feed plugin for the developers that's fully customisable and support timelines, searches and lists.
 
 == Description ==
 
@@ -16,9 +16,9 @@ A Twitter (v1.1) feed plugin for the developers that's flexible and supports dis
 
 **Features**:
 
-* Support for both User timelines and Search timelines
+* Supports User timelines, Search timelines and Lists
 * Use either a template tag or a shortcode to render feeds
-* Developers can utilise the plugin system to create their own template tags and shortcodes
+* Developers can utilise the plugin system to fully customise the plugin's functionality
 * A default stylesheet is included that you can use either for display or for study when creating your own
 * Sensitive OAuth and Consumer data is masked within the WordPress admin to prevent unauthorised access to your app data
 * All feeds are cached on first render to reduce subsequent load times, along with the option to choose who many hours the cache lasts
@@ -36,8 +36,8 @@ Before this plugin can be used the end user will need to offer it Consumer and O
 
 Before this plugin can be used the end user will need to offer it Consumer and OAuth keys that are used to authenticate your communication with Twitter. To obtain these:
 
-1. Visit the [create application page](https://dev.twitter.com/apps/new) on the Twitter developers site. You may be required to sign in, your usual Twitter.com login credentials will work here
-2. Fill in the necessary details and click the "Create your Twitter application" button at the bottom. Don't worry about being creative here, the details you put in won't be public (unless you make them public, that is)
+1. Visit the [create application page](https://dev.twitter.com/apps/new) on the Twitter developers site. You may be required to sign in, your usual Twitter.com login credentials will work here.
+2. Fill in the necessary details and click the "Create your Twitter application" button at the bottom. Don't worry about being creative here, the details you put in won't be public (unless you make them public, that is).
 3. If all goes well you'll be taken to the "Details" tab of the new app. Scroll down and look for the "Create my access token" button near the bottom of the page and click on it.
 4. Finally, click on the "OAuth Tool" tab. This page holds the Consumer Key, Consumer Secret, Access Token, and Access Token Secret necessary for this plugin to function. Copy them over into your settings.
 
@@ -52,20 +52,29 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 **Options set via tempate tag or shortcode take highest priority. If an option is not set in the tag/shortcode this plugin will then check to see if the option is set in the WordPress admin. If no options have been set the plugin will render with the defaults, listed below**
 
-**feed_type (string)**; `user_timeline` or `search` *default*: `user_timeline`
-> The type of feed that is to be rendered. `user_timeline` produces a feed based on what is set for `user`, and `search` produces a feed based on what is set for `search_term`.
+**feed_type (string)**; `user_timeline`, `search`, `list` *default*: `user_timeline`
+> The type of feed that is to be rendered. `user_timeline` produces a feed based on what is set for the `user` option, and `search` produces a feed based on what is set for the `search_term` option, `list` produces a feed based on what is set for the `list` option.
 
-**user (string)**; *default*: EjiOsigwe
+**user (string)**; *default*: twitter
 > Any valid Twitter username.
 
 **search_term (string)**; *default*: #twitter
 > The term you wish to search Twitter for, with or without a hashtag.
 
+**list (string)**; *default*: twitter-ir/twitter
+> The slug of a list followed by the username of the owner, separated by a "/".
+
 **count (int)**; *default*: 10
 > The number of tweets you want displayed. The maximum Twitter allows per request is at 200. Page speed can be substantially affected when loading multiple feeds on one page.
 
 **exclude_replies (string)**: `yes` or `no`; *default*: `no`
-> The option of whether or not to keep replies out of the feed displayed. Go with `no` to keep replies in, `yes` to take them out. NOTE: Twitter removes replies only after it retrieves the number of tweets you request. Thus if you choose 10, and out of that 10 6 are replies, only 4 tweets will be displayed.
+> The option of whether or not to keep replies out of the feed displayed. Go with `no` to keep replies in, `yes` to take them out.
+
+**exclude_retweets (string)**: `yes` or `no`; *default*: `no`
+> The option of whether or not to keep retweets out of the feed displayed. Go with `no` to keep retweets in, `yes` to take them out.
+
+**relative_times (string)**: `yes` or `no`; *default*: `yes`
+> The option of whether or not to display times as relative to when they were posted or as absolute times. As an example, a relative time would be "10 mins ago", while an absolute time would be "17:38, Tue". An absolute time is useful where feeds are being cached where relative times can quickly become inaccurate.
 
 **show_images (string)**: `yes` or `no`; *default*: `no`
 > The option of whether or not to display embedded images within the rendered feed. The caching of images is left to the browser to handle.
@@ -91,7 +100,7 @@ Both accept the same arguments/attributes which are all listed and explained bel
 == Frequently Asked Questions ==
 
 **How do I contribute to this plugin?**
->  Make a pull request at https://github.com/EjiOsigwe/devbuddy-twitter-feed.
+>  Fork from the [DevBuddy Twitter Feed GitHub repo](https://github.com/EjiOsigwe/devbuddy-twitter-feed), make your changes and make a pull request.
 
 **How do I create my own template tag and shortcode?**
 > Simply take a look at the sample files in the `assets` directory of this plugin. The code in these files can be copied over to your theme (included in your functions.php file) and customised to suit your needs. The sample files are well commented and will work right out of the box.
@@ -107,6 +116,14 @@ Both accept the same arguments/attributes which are all listed and explained bel
 
 
 == Changelog ==
+
+= 4.0.0 =
+* Feeds can now be Twitter Lists! Simply add `'feed_type' => 'list'` and `'list' => 'list-slug/ownerUsername'` to your template tag or `feed_type="list"` and `list="list-slug/ownerUsername"` to your shortcode to render a list.
+* The plugin has had Internationalization implemented, no translations are currently bundled with the plugin
+* The option to exclude retweets is now available. Simply add `'exclude_retweets' => 'yes'` to your template tag array or `exclude_retweets="yes"` to your shortcode
+* The feed now attempts to honour the number of tweets requested by the user where tweet exclusions have been established
+* Times on tweets can now be set to be absolute ("17.15") rather than relative ("5 mins ago"). Useful where you don't want cached feeds to appear inaccurate.
+* General housekeeping and minor code refinement.
 
 = 3.2.0 =
 * Feeds now have the facility to display embedded image media along with the tweet. Simply update the option on the settings page, or add `show_images="yes"` to your shortcode, or add `'show_images' => 'yes'` to the options array of your template tag
@@ -173,11 +190,11 @@ Developers can now utilise the plugin system to create their own template tags a
 Bug Fix: Using the shortcode to render the feed in the WordPress editor places the feed within the content rather than directly above it.
 
 = 2.0.2 =
-* Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathmetically, i.e. 372489002391470081 instead of 3.7248900239147E+17. 
+* Bug fix: The feed now extracts the string versions of IDs rather than the integer versions. This means long IDs are no longer susceptible to being read mathematically, i.e. 372489002391470081 instead of 3.7248900239147E+17.
 * The feed now offers friendly feedback should the timeline requested be empty.
 
 = 2.0.1 =
-Minor rectifications to code that prevented the defaut stylesheet from loading
+Minor rectifications to code that prevented the default stylesheet from loading
 
 = 2.0.0 =
 * Complete overhaul of the plugin's code. Code is now much more modular and refined
@@ -191,6 +208,9 @@ Amendment of plugin description and settings page to include important and usefu
 First release.
 
 == Upgrade Notice ==
+
+= 4.0.0 =
+New Features: Feeds can now be Twitter Lists, Internationalisation, retweets can now be excluded and more. NOTE: You may need to save new settings twice before they save properly.
 
 = 3.2.0 =
 * Feeds now have the facility to display embedded image media along with the tweet. Simply update the option on the settings page, or add `show_images="yes"` to your shortcode, or add `'show_images' => 'yes'` to the options array of your template tag

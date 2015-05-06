@@ -2,30 +2,13 @@
 
 /*
 Once you've initialised the feed using `new DB_Twitter_Feed` the feed's configuration options
-will be available to you as an array. The defaults of which are shown below:
-
-$the_feed->options['feed_type']       => 'user_timeline'  // "user_timeine" or "search"
-$the_feed->options['user']            => 'EjiOsigwe'      // Any valid Twitter username
-$the_feed->options['search_term']     => '#twitter'       // Any term to be searched on Twitter
-$the_feed->options['count']           => '10'             // Number of tweets to retrieve
-$the_feed->options['exclude_replies'] => 'no'             // ("yes" or "no") Only display tweets that aren't replies
-$the_feed->options['show_images']     => 'no'             // ("yes" or "no") Load embedded images
-$the_feed->options['https']           => 'no'             // ("yes" or "no") Load media from Twitter over secure HTTPS
-$the_feed->options['default_styling'] => 'no'             // ("yes" or "no") Load the bundled stylesheet
-$the_feed->options['cache_hours']     => 0                // Number of hours to cache the output
-$the_feed->options['clear_cache']     => 'no'             // ("yes" or "no") Clear the cache for the set feed term
-
-All access keys default to NULL:
-$the_feed->options['oauth_access_token']        => NULL             // The OAuth Access Token
-$the_feed->options['oauth_access_token_secret'] => NULL             // The OAuth Access Token Secret
-$the_feed->options['consumer_key']              => NULL             // The Consumer Key
-$the_feed->options['consumer_secret']           => NULL             // The Consumer Secret
-
+will be available to you as an array. The defaults of which can be seen in the
+lib/class.twitter-feed-base.php file, and are accessible via $feed_instance->options.
 
 There are also some Twitter specific links available too:
-$the_feed->tw     = 'https://twitter.com/';
-$the_feed->search = 'https://twitter.com/search?q=';
-$the_feed->intent = 'https://twitter.com/intent/';
+$feed_instance->tw     = 'https://twitter.com/';
+$feed_instance->search = 'https://twitter.com/search?q=';
+$feed_instance->intent = 'https://twitter.com/intent/';
 
 Any other useful methods and properties are used and commented on in the template tag below.
 ****************************************************************************************** */
@@ -65,13 +48,13 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 			*/
 
 
-		// Then check for an empty timeline
-		// Feel free to change the notification message
+			// Then check for an empty timeline
+			// Feel free to change the notification message
 		} elseif( $the_feed->is_empty() ) {
 			$the_feed->output .= '<p>Looks like this feed is completely empty! Perhaps try a different user or search term.</p>';
 
 
-		// If all is well we can get to HTML renderin'
+			// If all is well we can get to HTML renderin'
 		} else {
 
 			// START The Tweet list
@@ -84,55 +67,55 @@ function my_twitter_feed_template_tag( $feed_config = NULL ) {
 				$the_feed->html->set( $the_feed->parse_tweet_data( $tweet ) );
 
 
-			/* Below is the default HTML layout.
-
-			   The HTML class writes the actual HTML, just move the
-			   parts around as needed.
-
-			   If you do move things around, be sure to update your
-			   stylesheet accordingly.
-
-			   NOTE: The primary and secondary meta HTML parts are
-			   merely generic div elements used as content wrappers.
-			*********************************************************/
+				/* Below is the default HTML layout.
+	
+				   The HTML class writes the actual HTML, just move the
+				   parts around as needed.
+	
+				   If you do move things around, be sure to update your
+				   stylesheet accordingly.
+	
+				   NOTE: The primary and secondary meta HTML parts are
+				   merely generic div elements used as content wrappers.
+				*********************************************************/
 
 				// START Rendering the Tweet's HTML (outer tweet wrapper)
 				$the_feed->output .= $the_feed->html->open_tweet();
 
 
-					// START Tweet content (inner tweet wrapper)
-					$the_feed->output .= $the_feed->html->open_tweet_content();
+				// START Tweet content (inner tweet wrapper)
+				$the_feed->output .= $the_feed->html->open_tweet_content();
 
 
-						// START Tweeter's display picture
-						$the_feed->output .= $the_feed->html->tweet_display_pic();
-						// END Tweeter's display picture
+				// START Tweeter's display picture
+				$the_feed->output .= $the_feed->html->tweet_display_pic();
+				// END Tweeter's display picture
 
 
-						// START Tweet user info
-						$the_feed->output .= $the_feed->html->open_tweet_primary_meta();
-							$the_feed->output .= $the_feed->html->tweet_display_name_link();
-						$the_feed->output .= $the_feed->html->close_tweet_primary_meta();
-						// END Tweet user info
+				// START Tweet user info
+				$the_feed->output .= $the_feed->html->open_tweet_primary_meta();
+				$the_feed->output .= $the_feed->html->tweet_display_name_link();
+				$the_feed->output .= $the_feed->html->close_tweet_primary_meta();
+				// END Tweet user info
 
 
-						// START Actual tweet
-						$the_feed->output .= $the_feed->html->tweet_text();
-						$the_feed->output .= $the_feed->html->tweet_media();
-						// END Actual tweet
+				// START Actual tweet
+				$the_feed->output .= $the_feed->html->tweet_text();
+				$the_feed->output .= $the_feed->html->tweet_media();
+				// END Actual tweet
 
 
-						// START Tweet meta data
-						$the_feed->output .= $the_feed->html->open_tweet_secondary_meta();
-							$the_feed->output .= $the_feed->html->tweet_date();
-							$the_feed->output .= $the_feed->html->tweet_retweeted();
-							$the_feed->output .= $the_feed->html->tweet_intents();
-						$the_feed->output .= $the_feed->html->close_tweet_secondary_meta();
-						// END Tweet meta data
+				// START Tweet meta data
+				$the_feed->output .= $the_feed->html->open_tweet_secondary_meta();
+				$the_feed->output .= $the_feed->html->tweet_date();
+				$the_feed->output .= $the_feed->html->tweet_retweeted();
+				$the_feed->output .= $the_feed->html->tweet_intents();
+				$the_feed->output .= $the_feed->html->close_tweet_secondary_meta();
+				// END Tweet meta data
 
 
-					$the_feed->output .= $the_feed->html->close_tweet_content();
-					// END Tweet content
+				$the_feed->output .= $the_feed->html->close_tweet_content();
+				// END Tweet content
 
 
 				$the_feed->output .= $the_feed->html->close_tweet();

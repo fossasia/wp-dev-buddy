@@ -2,10 +2,6 @@
 	display:inline;
 	margin-left:5px;
 }
-#dbtf #dbtf_exclude_replies ~ p.description {
-	display:block;
-	margin-left:0;
-}
 
 #dbtf .input_feed_type[disabled="disabled"] {
 	background-color:#f7f7f7;

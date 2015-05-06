@@ -6,7 +6,7 @@
 * This class is used to handle processes that
 * occur outside of the feed rendering process
 *
-* @version 1.2.0
+* @version 1.2.1
 */
 if ( ! class_exists( 'DB_Twitter_Feed_Base' ) ) {
 
@@ -46,20 +46,56 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @var array Holds the configuration options and their default and/or user defined values
 	*/
 	protected $defaults = array(
-		'feed_type'                 => 'user_timeline', // String: ("user_timeline" or "search") The type of feed to render
-		'user'                      => 'EjiOsigwe',     // String: Any valid Twitter username
-		'search_term'               => '#twitter',      // String: Any term to be search on Twitter
-		'count'                     => '10',            // String: Number of tweets to retrieve
-		'exclude_replies'           => 'no',            // String: ("yes" or "no") Only display tweets that aren't replies
-		'show_images'               => 'no',            // String: ("yes" or "no") Whether to load embedded images or not
-		'https'                     => 'no',            // String: ("yes" or "no") Load media from Twitter over secure HTTPS
-		'default_styling'           => 'no',            // String: ("yes" or "no") Load the bundled stylesheet
-		'cache_hours'               => 0,               // Int:    Number of hours to cache the output
-		'clear_cache'               => 'no',            // String: ("yes" or "no") Clear the cache for the set feed term,
-		'oauth_access_token'        => NULL,            // String: The OAuth Access Token
-		'oauth_access_token_secret' => NULL,            // String: The OAuth Access Token Secret
-		'consumer_key'              => NULL,            // String: The Consumer Key
-		'consumer_secret'           => NULL             // String: The Consumer Secret
+		// String: ("user_timeline" or "search") The type of feed to render
+		'feed_type'                 => 'user_timeline',
+
+		// String: Any valid Twitter username
+		'user'                      => 'twitter',
+
+		// String: Any term to be search on Twitter
+		'search_term'               => '#twitter',
+
+		// String: The slug of a list followed by the username of the owner, separated by a "/"
+		'list'                      => 'twitter-ir/twitter',
+
+		// String: Number of tweets to retrieve
+		'count'                     => '10',
+
+		// String: ("yes" or "no") Remove replies from the retrieved feed data
+		'exclude_replies'           => 'no',
+
+		// String: ("yes" or "no") Remove retweets from the retrieved feed data
+		'exclude_retweets'           => 'no',
+
+		// String: ("yes" or "no") Display relative times
+		'relative_times'            => 'yes',
+
+		// String: ("yes" or "no") Whether to load embedded images or not
+		'show_images'               => 'no',
+
+		// String: ("yes" or "no") Load media from Twitter over secure HTTPS
+		'https'                     => 'no',
+
+		// String: ("yes" or "no") Load the bundled stylesheet
+		'default_styling'           => 'no',
+
+		// Int: Number of hours to cache the output
+		'cache_hours'               => 0,
+
+		// String: ("yes" or "no") Clear the cache for the set feed term,
+		'clear_cache'               => 'no',
+
+		// String: The OAuth Access Token
+		'oauth_access_token'        => NULL,
+
+		// String: The OAuth Access Token Secret
+		'oauth_access_token_secret' => NULL,
+
+		// String: The Consumer Key
+		'consumer_key'              => NULL,
+
+		// String: The Consumer Secret
+		'consumer_secret'           => NULL
 	);
 
 
@@ -71,17 +107,18 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* with WordPress.
 	*
 	* @access public
-	* @return void
 	* @since 1.0.0
 	*/
 	public function __construct() {
 		$this->set_main_admin_vars();
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_default_styling' ) );
+		add_action( 'plugins_loaded', array( $this, 'load_textdomain' ) );
 		add_shortcode( 'db_twitter_feed', array( $this, 'register_twitter_feed_sc' ) );
 
-		if ( $this->get_db_plugin_option( $this->options_name_main, 'default_styling' ) === 'yes' )
+		if ( $this->get_db_plugin_option( $this->options_name_main, 'default_styling' ) === 'yes' ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'load_default_styling' ) );
+		}
 	}
 
 
@@ -96,6 +133,23 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		$this->options_group_main = $this->plugin_name;
 		$this->options_name_main  = $this->plugin_name.'_options';
 		$this->page_uri_main      = 'db-twitter-feed-settings';
+		$this->text_domain        = str_replace( '_', '-', $this->plugin_name );
+	}
+
+
+	/**
+	 * Load the plugin's I18n text domain
+	 *
+	 * @access public
+	 * @return void
+	 * @since  1.2.1
+	 */
+	public function load_textdomain() {
+		load_plugin_textdomain(
+			'devbuddy-twitter-feed',
+			FALSE,
+			DBTF_PATH . '/languages'
+		);
 	}
 
 
@@ -107,7 +161,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @since 1.0.0
 	*/
 	public function register_default_styling() {
-		wp_register_style( $this->plugin_name.'-default', DBTF_URL . '/assets/feed.css', NULL, '2.2', 'all' );
+		wp_register_style( $this->plugin_name . '-default', DBTF_URL . '/assets/feed.css', NULL, '2.2', 'all' );
 	}
 
 
@@ -119,7 +173,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* @since 1.0.0
 	*/
 	public function load_default_styling() {
-		wp_enqueue_style( $this->plugin_name.'-default' );
+		wp_enqueue_style( $this->plugin_name . '-default' );
 	}
 
 
@@ -131,7 +185,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* work.
 	*
 	* @access public
-	* @return The db_twitter_feed() template tag with the $given_atts array as the parameter
+	* @return string The db_twitter_feed() template tag with the $given_atts array as the parameter
 	* @since 1.0.0
 	*
 	* @param array $given_atts An associative array of feed configuration options
@@ -142,8 +196,11 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			'feed_type'                 => NULL,
 			'user'                      => NULL,
 			'search_term'               => NULL,
+			'list'                      => NULL,
 			'count'                     => NULL,
 			'exclude_replies'           => NULL,
+			'exclude_retweets'          => NULL,
+			'relative_times'            => NULL,
 			'show_images'               => NULL,
 			'https'                     => NULL,
 			'default_styling'           => NULL,
@@ -164,8 +221,11 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			'feed_type'                 => $feed_type,
 			'user'                      => $user,
 			'search_term'               => $search_term,
+			'list'                      => $list,
 			'count'                     => $count,
 			'exclude_replies'           => $exclude_replies,
+			'exclude_retweets'          => $exclude_retweets,
+			'relative_times'            => $relative_times,
 			'show_images'               => $show_images,
 			'https'                     => $https,
 			'default_styling'           => $default_styling,
@@ -186,7 +246,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 	* Retrieve original version of masked data 
 	*
 	* Takes a name, searches the database for,
-	* and returns the original, untampered data.
+	* and returns the original, un-tampered data.
 	*
 	* @access protected
 	* @return array
@@ -237,6 +297,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 			// Establish tone of error by reading what is returned by batch_clear_cache()
 			switch ( $bcc_feedback ) {
+				default:
 				case 'no_' . $input['cache_segment'] . '_cache_data_to_clear':
 				case 'no_cache_data_to_clear':
 				case 'no_segment_chosen':
@@ -252,7 +313,12 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			}
 
 			// Set notification for next page
-			add_settings_error( 'cache_hours', 'cache_hours', ucfirst(str_replace('_', ' ', $bcc_feedback)), $tone );
+			add_settings_error(
+				'cache_hours',
+				'cache_hours',
+				__(ucfirst(str_replace('_', ' ', $bcc_feedback)), 'devbuddy-twitter-feed'),
+				$tone
+			);
 
 			// Return the original options as they're not be changed
 			$input = get_option( $this->options_name_main );
@@ -289,7 +355,15 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 				if ( $set_error ) {
 					// Let the user know what's up
-					add_settings_error( '', 'quotes_in_field_' . $option_name, 'Quotes are not allowed in the <u>' . ucwords(str_replace('_', ' ', $option_name)) . '</u> field. Your change for that field was not applied' );
+					$error_option = ucwords(str_replace('_', ' ', $option_name));
+					add_settings_error(
+						'',
+						'quotes_in_field_' . $option_name,
+						sprintf(
+							__( 'Quotes are not allowed in the %s field. Your change for that field was not applied', 'devbuddy-twitter-feed'),
+							'<em>' . $error_option . '</em>'
+						)
+						);
 				}
 
 				// Cleared as used else where in this section of code
@@ -338,6 +412,34 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		}
 
 
+		// Check that the Twitter List field is in the correct format
+		if ( isset( $input['list'] ) && $input['list'] !== '' && ! $this->get_list_term_data( $input['list'] ) ) {
+			add_settings_error(
+				'list',
+				'list',
+				__( 'The format of the "Twitter List" field is invalid. Please check and update it.', 'devbuddy-twitter-feed' ),
+				'error'
+			);
+		}
+
+
+		// Checkbox fields that are unchecked aren't included in the $input data. Here we remedy this
+		foreach ( $this->defaults as $item => $default_value ) {
+			if ( ! isset( $input[ $item ] ) && ( $default_value === 'yes' || $default_value === 'no' ) ) {
+				$stored_value = $this->get_option( $this->options_name_main, $item );
+
+				// Nothing in DB, get default
+				if ( $stored_value === FALSE ) {
+					$input[ $item ] = $this->defaults[ $item ];
+
+				// Something in DB, assume a missing value is an active change by the user
+				} elseif ( ! isset( $input[ $item ] ) ) {
+					$input[ $item ] = 'no';
+				}
+			}
+		}
+
+
 		// Check to see if any of the authentication data has been edited, grab the stored value if not
 		$input = $this->unmask_data( $input );
 
@@ -351,6 +453,10 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			case 'search':
 				$cache_id = $input['search_term'];
 			break;
+
+			case 'list':
+				$cache_id = $input[ $input['feed_type'] ];
+				break;
 
 			default:
 				$cache_id = FALSE;
@@ -367,13 +473,32 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 
 	/**
+	 * Get the list term data in a manageable format.
+	 *
+	 * @access public
+	 * @since  1.3.0
+	 *
+	 * @param  $list_term
+	 * @return array|bool
+	 */
+	public function get_list_term_data( $list_term ) {
+		$list_data = explode( '/', $list_term );
+		if ( ! is_array( $list_data ) || ( is_array( $list_data ) && count( $list_data ) !== 2 ) ) {
+			return FALSE;
+		} else {
+			return $list_data;
+		}
+	}
+
+
+	/**
 	* Cache whatever is in the DevBuddy_Feed_Plugin::$output property
 	*
 	* This method also sets the DevBuddy_Feed_Plugin::$is_cached property
 	* to TRUE once the cache is set.
 	*
 	* @access public
-	* @return void
+	* @return bool
 	* @since 1.2.0
 	*
 	* @param int $hours The number of hours the output should be cached for
@@ -386,7 +511,7 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 		/* The cache for the feed instance is set using the
 		   feed term as its ID. Here we grab the ID */
-		$id = ( isset($this->feed_term) ) ? $this->feed_term : FALSE;
+		$id = ( isset( $this->feed_term ) ) ? $this->feed_term : FALSE;
 
 		if ( (int) $hours > 0 ) {
 			if ( $id ) {
@@ -492,7 +617,8 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 		if ( ! $ftc ) {
 			$ftc = array(
 				'user_timeline' => array(),
-				'search'        => array()
+				'search'        => array(),
+				'list'          => array()
 			);
 		}
 
@@ -502,46 +628,43 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 			$cache_hours   = (int) $input['cache_hours'] * 3600;
 			$cache_expires = time() + $cache_hours;
 
-			switch ( $input['feed_type'] ) {
-				case 'user_timeline':
-					$user = htmlspecialchars($input['user'], ENT_QUOTES);
-					if ( $user !== FALSE ) {
-						$ftc['user_timeline'][ $user ] = array(
-							'cache_began'   => time(),
-							'cache_lasts'   => $cache_hours,
-							'cache_expires' => $cache_expires
-						);
-					}
-				break;
-
-				case 'search':
-					$search_term = htmlspecialchars($input['search_term'], ENT_QUOTES);
-					if ( $search_term !== FALSE ) {
-						$ftc['search'][ $search_term ] = array(
-							'cache_began'   => time(),
-							'cache_lasts'   => $cache_hours,
-							'cache_expires' => $cache_expires
-						);
-					}
-				break;
-
-				default:
-					$valid_feed_type = FALSE;
-				break;
+			// Check that the feed type given is supported
+			$feed_types = array( 'user_timeline', 'search', 'list' );
+			if ( ! in_array( $input['feed_type'], $feed_types ) ) {
+				$this->error( 2, 'Invalid feed type given to ' . __METHOD__ );
+				return FALSE;
 			}
 
-			if ( $valid_feed_type === TRUE ) {
-				if ( set_transient( $this->plugin_name . '_ftc', $ftc, 3600 * 24 ) === FALSE ) {
-					$this->error( 2, 'set_transient() for ' . $this->plugin_name . '_ftc was unsuccessful' );
-					return FALSE;
+			// The feed type name doesn't always match up to the field that gets the term
+			if ( $input['feed_type'] === 'user_timeline' ) {
+				$term = htmlspecialchars($input['user'], ENT_QUOTES);
 
-				} else {
-					return TRUE;
-				}
+			} elseif ( $input['feed_type'] === 'search' ) {
+				$term = htmlspecialchars($input['search_term'], ENT_QUOTES);
 
 			} else {
-				$this->error( 2, 'Invalid feed type on line ' . __LINE__ );
+				$term = htmlspecialchars($input['feed_type'], ENT_QUOTES);
+			}
+
+			// Check that htmlspecialchars() was successful
+			if ( empty( $term ) ) {
 				return FALSE;
+			}
+
+			// Prepare the cache meta data
+			$ftc[ $input['feed_type'] ][ $term ] = array(
+				'cache_began'   => time(),
+				'cache_lasts'   => $cache_hours,
+				'cache_expires' => $cache_expires
+			);
+
+			// Attempt to save the data
+			if ( set_transient( $this->plugin_name . '_ftc', $ftc, 3600 * 24 ) === FALSE ) {
+				$this->error( 2, 'set_transient() for ' . $this->plugin_name . '_ftc was unsuccessful' );
+				return FALSE;
+
+			} else {
+				return TRUE;
 			}
 		}
 	}
@@ -673,11 +796,9 @@ class DB_Twitter_Feed_Base extends DevBuddy_Feed_Plugin {
 
 		switch ( $segment ) {
 			case 'user_timeline':
-				$clearance_list = $ftc['user_timeline'];
-			break;
-
+			case 'list':
 			case 'search':
-				$clearance_list = $ftc['search'];
+				$clearance_list = $ftc[ $segment ];
 			break;
 
 			case 'all':

@@ -260,7 +260,7 @@ class DB_Twitter_HTML {
 	* @return string
 	*/
 	public function tweet_date() {
-		$output = '<a href="' . $this->url_to_tweet().'" target="_blank" title="View this tweet in Twitter" class="tweet_date">' . $this->tweet['date'] . '</a>';
+		$output = '<a href="' . $this->url_to_tweet().'" target="_blank" title="' . __( 'View this tweet in Twitter', 'devbuddy-twitter-feed' ) . '" class="tweet_date">' . $this->tweet['date'] . '</a>';
 
 		return $output;
 	}
@@ -278,7 +278,7 @@ class DB_Twitter_HTML {
 		if ( $this->tweet['is_retweet'] ) {
 			$output .= '<span class="tweet_retweet">';
 			$output .= '<span class="tweet_icon tweet_icon_retweet"></span>';
-			$output .= 'Retweeted by ';
+			$output .= __( 'Retweeted by ', 'devbuddy-twitter-feed' );
 			$output .= '<a href="' . $this->tw . $this->tweet['retweeter_screen_name'] . '" target="_blank" title="' . $this->tweet['retweeter_display_name'] . '">' . $this->tweet['retweeter_display_name'] . '</a>';
 			$output .= '</span>';
 		}
@@ -297,21 +297,21 @@ class DB_Twitter_HTML {
 		$output  = '<div class="tweet_intents">';
 
 		// START Reply intent
-		$output .= '<a href="' . $this->intent.'tweet?in_reply_to=' . $this->tweet['id'] . '" title="Reply to this tweet" target="_blank" class="tweet_intent tweet_intent_reply">';
+		$output .= '<a href="' . $this->intent.'tweet?in_reply_to=' . $this->tweet['id'] . '" title="' . __( 'Reply to this tweet', 'devbuddy-twitter-feed' ) . '" target="_blank" class="tweet_intent tweet_intent_reply">';
 		$output .= '<span class="tweet_icon tweet_icon_reply"></span>';
-		$output .= '<b class="tweet_intent_txt">Reply</b></a>';
+		$output .= '<b class="tweet_intent_txt">' . __( 'Reply', 'devbuddy-twitter-feed' ) . '</b></a>';
 		// END Reply intent
 
 		// START Retweet intent
-		$output .= '<a href="' . $this->intent.'retweet?tweet_id=' . $this->tweet['id'] . '" title="Retweet this tweet" target="_blank" class="tweet_intent tweet_intent_retweet">';
+		$output .= '<a href="' . $this->intent.'retweet?tweet_id=' . $this->tweet['id'] . '" title="' . __( 'Retweet this tweet', 'devbuddy-twitter-feed' ) . '" target="_blank" class="tweet_intent tweet_intent_retweet">';
 		$output .= '<span class="tweet_icon tweet_icon_retweet"></span>';
-		$output .= '<b class="tweet_intent_txt">Retweet</b></a>';
+		$output .= '<b class="tweet_intent_txt">' . __( 'Retweet', 'devbuddy-twitter-feed' ) . '</b></a>';
 		// END Retweet intent
 
 		// START Favourite intent
-		$output .= '<a href="' . $this->intent.'favorite?tweet_id=' . $this->tweet['id'] . '" title="Favourite this tweet" target="_blank" class="tweet_intent tweet_intent_favourite">';
+		$output .= '<a href="' . $this->intent.'favorite?tweet_id=' . $this->tweet['id'] . '" title="' . __( 'Favourite this tweet', 'devbuddy-twitter-feed' ) . '" target="_blank" class="tweet_intent tweet_intent_favourite">';
 		$output .= '<span class="tweet_icon tweet_icon_favourite"></span>';
-		$output .= '<b class="tweet_intent_txt">Favourite</b></a>';
+		$output .= '<b class="tweet_intent_txt">' . __( 'Favourite', 'devbuddy-twitter-feed' ) . '</b></a>';
 		// END Favourite intent
 
 		$output .= '</div>';

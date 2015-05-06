@@ -67,7 +67,13 @@ class DB_Plugin_WP_Admin_Helper extends DB_Twitter_Feed_Base {
 		$stored_value = $this->get_db_plugin_option( $this->options_name_main, $args['option'] );
 
 		echo '<input type="checkbox" id="'.$this->_html_item_id_attr( $args['option'] ).'" name="'.$this->options_name_main.'['.$args['option'].']" value="yes"';
-		if( $stored_value && $stored_value === 'yes') {
+
+		// If nothing is entered in the database we grab from defaults
+		if ( $stored_value === FALSE ) {
+			$stored_value = $this->defaults[ $args['option'] ];
+		}
+
+		if( $stored_value === 'yes') {
 			echo ' checked="checked"';
 		}
 

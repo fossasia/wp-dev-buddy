@@ -24,6 +24,11 @@ class DevBuddy_Feed_Plugin {
 	public $feed_data;
 
 	/**
+	 * @var mixed Holds the feed data after it has been parsed by the plugin
+	 */
+	public $parsed_feed_data = array();
+
+	/**
 	* @var array Holds the configuration options once the feed class has been instantiated
 	*/
 	public $options;
@@ -36,7 +41,7 @@ class DevBuddy_Feed_Plugin {
 	/**
 	* @var int The number of feed items that have been rendered
 	*/
-	private $item_count = 0;
+	protected $item_count = 0;
 
 	/**
 	* @var bool A boolean indication of whether or not a cached version of the output is available
@@ -253,12 +258,12 @@ class DevBuddy_Feed_Plugin {
 
 		$mins          = $diff / 60 % 60;
 		$the_mins_ago  = $mins;
-		$the_mins_ago .= ( $mins == '1' ) ? ' minute ago' : ' minutes ago';
+		$the_mins_ago .= ( $mins == '1' ) ? __( ' minute ago', 'devbuddy-twitter-feed' ) : __( ' minutes ago', 'devbuddy-twitter-feed' );
 
 		$hours          = $diff / 3600 % 24;
 		$the_hours_ago  = 'About ';
 		$the_hours_ago .= $hours;
-		$the_hours_ago .= ( $hours == '1' ) ? ' hour ago' : ' hours ago';
+		$the_hours_ago .= ( $hours == '1' ) ? __( ' hour ago', 'devbuddy-twitter-feed' ) : __( ' hours ago', 'devbuddy-twitter-feed' );
 
 		$the_time = date( 'H:i', $then );
 		$the_day  = date( 'D', $then );
