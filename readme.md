@@ -1,4 +1,5 @@
 === DevBuddy Twitter Feed ===
+
 Contributors: EjiOsigwe
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=XMXJEVPQ35YMJ
 Tags: Twitter, Twitter Feed, Twitter 1.1, Twitter API, Twitter Shortcode, Twitter tweet, tweets, Twitter, Twitter connect, Twitter share, Twitter share button, DevBuddy
@@ -132,9 +133,11 @@ Both accept the same arguments/attributes which are all listed and explained bel
 * General housekeeping and minor improvements.
 
 = 3.1.3 =
+
 Bug fix: A lack of a feed term cache in in website cache no longer prompts error message
 
 = 3.1.2 =
+
 Refined error and debugging functionality, as well as silencing error_log() notices should one's server not handle it well
 
 = 3.1.1 =
@@ -152,6 +155,7 @@ Refined error and debugging functionality, as well as silencing error_log() noti
 * General code improvements
 
 = 3.0.2 =
+
 Bug fix: Unchanged OAuth Access Token should no longer become incorrect when changes are saved via the admin
 
 = 3.0.1 =
@@ -160,12 +164,15 @@ Bug fix: Unchanged OAuth Access Token should no longer become incorrect when cha
 * General code housekeeping
 
 = 3.0.0 =
+
 Timelines can now be Searches! Check the settings page to test it out. Or, in your template tag/shortcode, add the `feed_type` option with a value of `search` along with the `search_term` option and your search as its value
 
 = 2.3.2 =
+
 Bug fix: Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter. NOTE: It's likely you will need to re-enter your OAuth Access Token.
 
 = 2.3.1 =
+
 Bug fix: Rectified errors in the code that caused fatal error
 
 = 2.3.0 =
@@ -173,12 +180,15 @@ Bug fix: Rectified errors in the code that caused fatal error
 * Updated the sample template tag and shortcode files
 
 = 2.2.2 =
+
 Added template tag and shortcode sample code in the `assets` folder
 
 = 2.2.1 =
+
 Bug fix: Fix to a bug that prevented the feed from using the Tweet count set by the user
 
 = 2.2.0 =
+
 Developers can now utilise the plugin system to create their own template tags and shortcodes. Samples are included in the "assets" directory of this plugin.
 
 = 2.1.0 =
@@ -187,6 +197,7 @@ Developers can now utilise the plugin system to create their own template tags a
 * Minor refactor work on the code to make it less bug and error prone
 
 = 2.0.3 =
+
 Bug Fix: Using the shortcode to render the feed in the WordPress editor places the feed within the content rather than directly above it.
 
 = 2.0.2 =
@@ -194,6 +205,7 @@ Bug Fix: Using the shortcode to render the feed in the WordPress editor places t
 * The feed now offers friendly feedback should the timeline requested be empty.
 
 = 2.0.1 =
+
 Minor rectifications to code that prevented the default stylesheet from loading
 
 = 2.0.0 =
@@ -205,11 +217,13 @@ Minor rectifications to code that prevented the default stylesheet from loading
 Amendment of plugin description and settings page to include important and useful information.
 
 = 1.0.0 =
+
 First release.
 
 == Upgrade Notice ==
 
 = 4.0.0 =
+
 New Features: Feeds can now be Twitter Lists, Internationalisation, retweets can now be excluded and more. NOTE: You may need to save new settings twice before they save properly.
 
 = 3.2.0 =
@@ -219,9 +233,11 @@ New Features: Feeds can now be Twitter Lists, Internationalisation, retweets can
 * General housekeeping and minor improvements.
 
 = 3.1.3 =
+
 Bug fix: A lack of a feed term cache in in website cache no longer prompts error message
 
 = 3.1.2 =
+
 Refined error and debugging functionality, as well as silencing error_log() notices should one's server not handle it well
 
 = 3.1.1 =
@@ -239,49 +255,65 @@ Refined error and debugging functionality, as well as silencing error_log() noti
 * General code improvements
 
 = 3.0.2 =
+
 Bug fix: Unchanged OAuth Access Token should no longer become incorrect when changes are saved via the admin
 
 = 3.0.1 =
+
 Code amendment that ensures that the plugin provides the user with useful feedback if a search term returns no tweets and some other general code maintenance work.
 
 = 3.0.0 =
+
 Plugin now supports searches as timelines. Visit the settings page to change options or the plugin's WordPress page for usage instructions with template tags/shortcodes.
 
 = 2.3.2 =
+
 Masked OAuth Access Token data is now properly unmasked upon saving on the settings page, meaning that connection credentials are not erroneous when it comes to communicating with Twitter. NOTE: It's likely you will need to re-enter your OAuth Access Token.
 
 = 2.3.1 =
+
 Rectified errors in the code that caused fatal error
 
 = 2.3.0 =
+
 Added HTML rendering class to assist with customising the feed's HTML layout, as well as an update of the sample template tag and shortcode files.
 
 = 2.2.2 =
+
 Added template tag and shortcode sample code in the `assets` folder
 
 = 2.2.1 =
+
 Fixes a bug that stops the feed from using the Tweet count set by the user.
 
 = 2.2.0 =
+
 Developers can now utilise the plugin system to create their own template tags and shortcodes. Samples are included in the "assets" directory of this plugin.
 
 = 2.1.0 =
+
 Default stylesheet has been updated to be responsive, and to match your theme's appearance as much as possible. That and some code cleanup.
 
 = 2.0.3 =
+
 Fixes a bug that meant the feed would be rendered before the content, rather than within, if the shortcode was used in the WordPress editor.
 
 = 2.0.2 =
+
 Fixes a bug that led to IDs being read mathematically. As some of the links rendered by the feed use these IDs, those links may have been faulty as a result.
 
 = 2.0.1 =
+
 Minor rectifications to code that prevented the default stylesheet from loading. Update to be able to take advantage of the bundled stylesheet.
 
 = 2.0.0 =
+
 The plugin code structure has undergone considerable changes but this won't be noticeable to the user. Additionally, you can now change the number of hours that the feed is cached for and sensitive OAuth and Consumer Key/Secret data is now masked in the admin.
 
 = 1.0.1 =
+
 Amendment of plugin description and settings page to include important and useful information. Not an urgent upgrade.
 
 = 1.0.0 =
+
 First release.
